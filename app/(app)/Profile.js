@@ -101,7 +101,7 @@ export default function Profile() {
         if (user && user.profilePicture) {
             setImage(user.profilePicture); // อัปเดต image state เมื่อ user มี profilePicture
         }
-    }, [user]);
+    }, [user, user?.profilePicture]);
 
     const handlerLogout = async () => {
         await logout();
@@ -111,10 +111,12 @@ export default function Profile() {
         if (newUsername.trim() !== '' && newUsername !== user.username) {
             const result = await updateUsername(user.userId, newUsername);
             if (result.success) {
-                Alert.alert("สำเร็จ", "อัปเดตชื่อผู้ใช้เรียบร้อยแล้ว");
+                Alert.alert("Success", "Username updated successfully");
                 setIsEditingUsername(false);
+                // อัปเดต image state หลังจากอัปเดตชื่อผู้ใช้สำเร็จ
+                setImage(user.profilePicture);
             } else {
-                Alert.alert("ข้อผิดพลาด", "ไม่สามารถอัปเดตชื่อผู้ใช้ได้ โปรดลองอีกครั้ง");
+                Alert.alert("Error", "Failed to update username. Please try again.");
             }
         } else {
             setIsEditingUsername(false);
@@ -163,10 +165,10 @@ export default function Profile() {
                                     style={styles.usernameInput}
                                     value={newUsername}
                                     onChangeText={setNewUsername}
-                                    placeholder="ใส่ชื่อผู้ใช้ใหม่"
+                                    placeholder="Enter new username"
                                 />
                             ) : (
-                                <Text style={styles.infoText}>{user?.username || 'ผู้ใช้'}</Text>
+                                <Text style={styles.infoText}>{user?.username || 'username'}</Text>
                             )}
                         </View>
                         <TouchableOpacity
@@ -185,7 +187,7 @@ export default function Profile() {
                             <Ionicons name="mail" size={24} color="#6666ff" />
                         </View>
                         <View style={styles.textContainer}>
-                            <Text style={styles.infoText}>{user?.email || 'ไม่มีอีเมล'}</Text>
+                            <Text style={styles.infoText}>{user?.email || 'No email'}</Text>
                         </View>
                     </View>
                 </View>
@@ -193,7 +195,7 @@ export default function Profile() {
                 <TouchableOpacity style={styles.logoutButton} onPress={handlerLogout}>
                     <View style={styles.logoutGradient}>
                         <Ionicons name="log-out" size={24} color="#fff" />
-                        <Text style={styles.logoutButtonText}>ออกจากระบบ</Text>
+                        <Text style={styles.logoutButtonText}>Logout</Text>
                     </View>
                 </TouchableOpacity>
             </View>
@@ -204,7 +206,7 @@ export default function Profile() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f0f0ff',
+        backgroundColor: '#ffffff',
         paddingTop: 60,
     },
     headerContainer: {
@@ -253,7 +255,7 @@ const styles = StyleSheet.create({
     },
     profileEditIconContainer: {
         position: 'absolute',
-        bottom: -11,
+        bottom: -5,
         right: 5,
         backgroundColor: '#6666ff',
         width: 40,

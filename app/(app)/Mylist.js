@@ -71,7 +71,7 @@ export default function Mylist() {
     const styles = StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: '#f0f0ff',
+            backgroundColor: '#ffffff',
         },
         contentContainer: {
             flex: 1,
@@ -84,25 +84,25 @@ export default function Mylist() {
             left: 0,
             right: 0,
             zIndex: 1000,
-            paddingTop: 40,
-            paddingBottom: 10,
         },
         header: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
             paddingHorizontal: 20,
+            paddingTop: 50,
+            paddingBottom: 10,
         },
         headerTitle: {
-            fontSize: 30,
+            fontSize: 24,
             fontWeight: 'bold',
-            color: '#333',
+            color: '#6666ff',
         },
         searchButton: {
             padding: 10,
         },
         listContainer: {
-            paddingTop: isSearchVisible ? 100 : 50,
+            paddingTop: isSearchVisible ? 110 : 60,
             paddingHorizontal: 10,
         },
         movieItem: {
@@ -181,7 +181,7 @@ export default function Mylist() {
             alignItems: 'center',
         },
         emptyText: {
-            color: '#000',
+            color: 'gray',
             fontSize: 18,
             textAlign: 'center',
             marginTop: 20,
@@ -205,7 +205,8 @@ export default function Mylist() {
             borderRadius: 25,
             borderColor: '#6666ff',
             marginHorizontal: 20,
-            marginTop: 10,
+            marginTop: -10,
+            marginBottom: 10,
             paddingHorizontal: 15,
             paddingVertical: 10,
             elevation: 3,

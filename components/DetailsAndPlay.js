@@ -142,38 +142,31 @@ const DetailsAndPlay = () => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.headerContainer}>
+                {isPlaying ? (
+                    <Video
+                        source={{ uri: 'https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4' }}
+                        rate={1.0}
+                        volume={1.0}
+                        isMuted={false}
+                        resizeMode="cover"
+                        shouldPlay
+                        useNativeControls
+                        style={styles.video}
+                    />
+                ) : (
+                    <Image
+                        source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }}
+                        style={styles.poster}
+                    />
+                )}
+
+            </View>
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 showsHorizontalScrollIndicator={false}
+                style={styles.scrollView}
             >
-                <View style={styles.headerContainer}>
-                    {isPlaying ? (
-                        <Video
-                            source={{ uri: 'https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4' }}
-                            rate={1.0}
-                            volume={1.0}
-                            isMuted={false}
-                            resizeMode="cover"
-                            shouldPlay
-                            useNativeControls
-                            style={styles.video}
-                        />
-                    ) : (
-                        <Image
-                            source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }}
-                            style={styles.poster}
-                        />
-                    )}
-                    <LinearGradient
-                        colors={['rgba(0,0,0,0.8)', 'transparent']}
-                        style={styles.gradientHeader}
-                    />
-                    <LinearGradient
-                        colors={['transparent', 'rgba(0,0,0,0.9)']}
-                        style={styles.gradientFooter}
-                    />
-                </View>
-
                 <View style={styles.infoContainer}>
                     <Text style={styles.title}>{movie.title}</Text>
                     <Text style={styles.releaseDate}>Release Date: {movie.release_date}</Text>
@@ -189,7 +182,7 @@ const DetailsAndPlay = () => {
 
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.myListButton} onPress={handleMyList}>
-                            <Ionicons name={isInMyList ? "checkmark-circle" : "add-circle-outline"} size={24} color="#fff" />
+                            <Ionicons name={isInMyList ? "checkmark-circle" : "add-circle-outline"} size={24} color="#6666ff" />
                             <Text style={styles.myListButtonText}>
                                 {isInMyList ? "Remove from My List" : "Add to My List"}
                             </Text>
@@ -254,11 +247,15 @@ const getPlatformTypeText = (type) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: '#f0f0ff',
     },
     headerContainer: {
         height: height * 0.6,
-        position: 'relative',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1,
     },
     gradientHeader: {
         height: 100,
@@ -303,18 +300,18 @@ const styles = StyleSheet.create({
     },
     infoContainer: {
         padding: 20,
+        backgroundColor: '#f0f0ff',
     },
     title: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: '#fff',
+        color: '#333',
         marginBottom: 10,
     },
     releaseDate: {
         fontSize: 16,
-        color: '#bbb',
+        color: '#666',
         marginBottom: 10,
-        text: 'Release Date:',
     },
     ratingContainer: {
         flexDirection: 'row',
@@ -341,7 +338,7 @@ const styles = StyleSheet.create({
     },
     overview: {
         fontSize: 16,
-        color: '#ddd',
+        color: '#333',
         lineHeight: 24,
         marginBottom: 20,
     },
@@ -353,39 +350,44 @@ const styles = StyleSheet.create({
     playButton: {
         flex: 1,
         flexDirection: 'row',
-        backgroundColor: '#E50914',
+        backgroundColor: '#6666ff',
         padding: 15,
         borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
         marginLeft: 10,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
     playButtonText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
         marginLeft: 10,
-        text: 'Watch Trailer',
     },
     myListButton: {
         flex: 1,
         flexDirection: 'row',
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        backgroundColor: 'rgba(102, 102, 255, 0.1)',
         padding: 15,
         borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 10,
+        borderWidth: 2,
+        borderColor: '#6666ff',
     },
     myListButtonText: {
-        color: '#fff',
-        fontSize: 18,
+        color: '#6666ff',
+        fontSize: 16,
         fontWeight: 'bold',
         marginLeft: 10,
-        text: 'Add to My List',
     },
     platformTypeText: {
-        color: '#fff',
+        color: '#333',
         fontSize: 18,
         fontWeight: 'bold',
         marginTop: 20,
@@ -407,9 +409,13 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     platformText: {
-        color: '#fff',
+        color: '#6666ff',
         fontSize: 14,
         textAlign: 'center',
+    },
+    scrollView: {
+        flex: 1,
+        marginTop: height * 0.6,
     },
 });
 

@@ -267,7 +267,7 @@ export default function Home() {
                             key={index}
                             style={[
                                 styles.paginationDot,
-                                { backgroundColor: index === currentPage ? '#6666ff' : 'gray' }
+                                { backgroundColor: index === currentPage ? '#6666ff' : 'rgba(0,0,0,0.4)' }
                             ]}
                         />
                     ))}
@@ -414,7 +414,7 @@ export default function Home() {
                         <Text style={styles.username}>{user?.username || 'ผู้ใช้'}</Text>
                     </View>
                     <TouchableOpacity onPress={handleSearchPress} style={styles.searchButton}>
-                        <Ionicons name="search" size={24} color="#000" />
+                        <Ionicons name="search" size={24} color="#6666ff" />
                     </TouchableOpacity>
                 </View>
             </BlurView>
@@ -425,10 +425,10 @@ export default function Home() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f0f0ff',
+        backgroundColor: '#ffffff',
     },
     contentContainer: {
-        paddingTop: 90, // ปรับค่านี้ตามความสูงของ header
+        paddingTop: 100, // ปรับค่านี้ตามความสูงของ header
         paddingBottom: 100,
     },
     headerBlur: {
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 20,
-        paddingTop: 40,
+        paddingTop: 50,
         paddingBottom: 10,
     },
     userInfo: {
@@ -451,9 +451,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     profilePicture: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         marginRight: 10,
     },
     defaultProfilePicture: {
@@ -471,12 +471,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     username: {
-        fontSize: 30,
+        fontSize: 24,
         fontWeight: 'bold',
-        color: '#000',
+        color: '#6666ff',
     },
     searchButton: {
-        padding: 5,
+        padding: 10,
     },
     titleContainer: {
         flexDirection: 'row',
