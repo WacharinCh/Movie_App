@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, Dimensions, ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, Dimensions, ImageBackground, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../context/authContext';
 import config from '../../config';
+import { BlurView } from 'expo-blur';
 
 export default function Home() {
     const navigation = useNavigation();
@@ -188,20 +189,14 @@ export default function Home() {
     };
 
     return (
-        <LinearGradient
-            colors={['#121212', '#121212', '#121212']}
-            style={styles.gradient}
-        >
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Home</Text>
-                <TouchableOpacity onPress={handleSearchPress} style={styles.searchButton}>
-                    <Ionicons name="search" size={24} color="#fff" />
-                </TouchableOpacity>
-            </View>
-            <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-                <View style={styles.titleContainer}>
+        <View style={styles.container}>
+            <ScrollView
+                contentContainerStyle={styles.contentContainer}
+                showsVerticalScrollIndicator={false}
+            >
+                {/* <View style={styles.titleContainer}>
                     <Text style={styles.title}>Top 10 Trending Today</Text>
-                </View>
+                </View> */}
                 <ScrollView
                     horizontal
                     pagingEnabled
@@ -272,7 +267,7 @@ export default function Home() {
                             key={index}
                             style={[
                                 styles.paginationDot,
-                                { backgroundColor: index === currentPage ? '#e50914' : 'rgba(255, 255, 255, 0.5)' }
+                                { backgroundColor: index === currentPage ? '#6666ff' : 'gray' }
                             ]}
                         />
                     ))}
@@ -401,21 +396,87 @@ export default function Home() {
                     </ScrollView>
                 )}
             </ScrollView>
-        </LinearGradient>
+            <BlurView intensity={80} tint="light" style={styles.headerBlur}>
+                <View style={styles.header}>
+                    <View style={styles.userInfo}>
+                        {user?.profilePicture ? (
+                            <Image
+                                source={{ uri: user.profilePicture }}
+                                style={styles.profilePicture}
+                            />
+                        ) : (
+                            <View style={styles.defaultProfilePicture}>
+                                <Text style={styles.defaultProfilePictureText}>
+                                    {user?.username?.charAt(0).toUpperCase() || 'U'}
+                                </Text>
+                            </View>
+                        )}
+                        <Text style={styles.username}>{user?.username || 'ผู้ใช้'}</Text>
+                    </View>
+                    <TouchableOpacity onPress={handleSearchPress} style={styles.searchButton}>
+                        <Ionicons name="search" size={24} color="#000" />
+                    </TouchableOpacity>
+                </View>
+            </BlurView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-
+        backgroundColor: '#f0f0ff',
     },
     contentContainer: {
-        paddingBottom: 100
-
+        paddingTop: 90, // ปรับค่านี้ตามความสูงของ header
+        paddingBottom: 100,
     },
-    gradient: {
-        flex: 1,
+    headerBlur: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingTop: 40,
+        paddingBottom: 10,
+    },
+    userInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    profilePicture: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        marginRight: 10,
+    },
+    defaultProfilePicture: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#6666ff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10,
+    },
+    defaultProfilePictureText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    username: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        color: '#000',
+    },
+    searchButton: {
+        padding: 5,
     },
     titleContainer: {
         flexDirection: 'row',
@@ -425,22 +486,19 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         paddingHorizontal: 20,
         borderLeftWidth: 4,
-        borderLeftColor: '#e50914',
+        borderLeftColor: '#6666ff',
         paddingLeft: 16,
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#fff',
-        textShadowColor: 'rgba(0, 0, 0, 0.75)',
-        textShadowOffset: { width: -1, height: 1 },
-        textShadowRadius: 10
+        color: 'black',
+
     },
     seeAllButton: {
         fontSize: 16,
-        color: '#e50914',
+        color: '#6666ff',
         fontWeight: 'bold',
-        backgroundColor: 'rgba(229, 9, 20, 0.1)',
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 20,
@@ -537,7 +595,7 @@ const styles = StyleSheet.create({
     myListButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(229, 9, 20, 0.8)',
+        backgroundColor: 'rgba(102,102,255, 0.8)',
         paddingVertical: 5,
         paddingHorizontal: 10,
         borderRadius: 15,
@@ -608,7 +666,7 @@ const styles = StyleSheet.create({
     releaseDateContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(229, 9, 20, 0.8)',
+        backgroundColor: 'rgba(102,102,255, 0.8)',
         paddingHorizontal: 10,
         paddingVertical: 5,
         borderRadius: 15,
@@ -628,7 +686,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     genreButton: {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
         paddingHorizontal: 18,
         paddingVertical: 10,
         borderRadius: 25,
@@ -636,7 +694,7 @@ const styles = StyleSheet.create({
         minWidth: 100,
     },
     selectedGenreButton: {
-        backgroundColor: '#e50914',
+        backgroundColor: '#6666ff',
     },
     genreButtonText: {
         color: '#fff',
@@ -658,21 +716,5 @@ const styles = StyleSheet.create({
         height: 8,
         borderRadius: 4,
         marginHorizontal: 4,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingTop: 40,
-        paddingBottom: 10,
-    },
-    headerTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#fff',
-    },
-    searchButton: {
-        padding: 5,
     },
 });

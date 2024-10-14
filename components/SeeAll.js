@@ -7,6 +7,7 @@ import Loading from './Loading';
 import { Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import config from '../config';
+import { BlurView } from 'expo-blur';
 
 export default function SeeAll({ route }) {
     const { category, genreId } = route.params;
@@ -75,7 +76,7 @@ export default function SeeAll({ route }) {
         { id: 53, name: 'Thriller' },
         { id: 36, name: 'History' },
         { id: 9648, name: 'Mystery' },
-        { id: 16, name: 'Animation' }  // เพิ่มหมวดหมู่การ์ตูน
+        { id: 16, name: 'Animation' }  // Added Animation category
     ];
 
     const handleGenrePress = (genreId) => {
@@ -122,18 +123,20 @@ export default function SeeAll({ route }) {
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="chevron-back" size={28} color="#fff" />
-                </TouchableOpacity>
-                <Text style={styles.title}>
-                    {category === 'recommended' ? 'แนะนำ' : category === 'upcoming' ? 'เร็วๆ นี้' : 'ประเภท'}
-                </Text>
-                <TouchableOpacity onPress={handleSearchPress} style={styles.searchButton}>
-                    <Ionicons name="search" size={24} color="#fff" />
-                </TouchableOpacity>
-            </View>
+        <SafeAreaView style={styles.container} edges={['left', 'right']}>
+            <BlurView intensity={80} tint="light" style={styles.headerBlur}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <Ionicons name="chevron-back" size={28} color="#000" />
+                    </TouchableOpacity>
+                    <Text style={styles.title}>
+                        {category === 'recommended' ? 'Recommended' : category === 'upcoming' ? 'Upcoming Movies' : 'Popular Categories'}
+                    </Text>
+                    <TouchableOpacity onPress={handleSearchPress} style={styles.searchButton}>
+                        <Ionicons name="search" size={24} color="#000" />
+                    </TouchableOpacity>
+                </View>
+            </BlurView>
 
             {category === 'genres' && (
                 <View
@@ -193,14 +196,36 @@ export default function SeeAll({ route }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#121212',
+        backgroundColor: '#f0f0ff',
+        paddingTop: 90, // Add padding to account for the header
+    },
+    headerBlur: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 15,
+        paddingTop: 40,
+        paddingBottom: 10,
+    },
+    backButton: {
+        padding: 5,
     },
     title: {
-        fontSize: 28,
+        flex: 1,
+        fontSize: 24,
         fontWeight: 'bold',
-        color: '#fff',
-        marginVertical: 20,
-        marginLeft: 20,
+        color: '#000',
+        textAlign: 'center',
+    },
+    searchButton: {
+        padding: 5,
     },
     listContainer: {
         paddingHorizontal: 10,
@@ -212,6 +237,10 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         overflow: 'hidden',
         elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
     moviePoster: {
         width: '100%',
@@ -262,7 +291,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     genreButton: {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'rgba(0, 0, 0, 0.3)', // เปลี่ยนสีพื้นหลังปุ่มหมวดหมู่
         paddingHorizontal: 15,
         paddingVertical: 10,
         borderRadius: 25,
@@ -270,12 +299,10 @@ const styles = StyleSheet.create({
         minWidth: 100,
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 1,
-
+        borderWidth: 0, // ลบเส้นขอบ
     },
     selectedGenreButton: {
-        backgroundColor: '#e50914',
-        borderColor: '#e50914',
+        backgroundColor: '#6666ff', // เปลี่ยนสีพื้นหลังปุ่มที่เลือก
     },
     genreButtonText: {
         color: '#fff',
@@ -293,29 +320,5 @@ const styles = StyleSheet.create({
     footerLoadingContainer: {
         paddingVertical: 20,
         alignItems: 'center',
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 15,
-        paddingTop: 10,
-        paddingBottom: 15,
-    },
-    backButton: {
-        padding: 5,
-        borderRadius: 20,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    },
-    title: {
-        flex: 1,
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#fff',
-        textAlign: 'center',
-        marginRight: 40,
-    },
-    searchButton: {
-        padding: 5,
     },
 });

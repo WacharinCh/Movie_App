@@ -36,19 +36,22 @@ function TabNavigator() {
                 },
                 headerShown: false,
                 tabBarStyle: {
-                    backgroundColor: 'black',
+                    backgroundColor: '#6666ff',
                     borderTopWidth: 0,
-                    elevation: 8,
+                    elevation: 0,
                     height: 90,
-                    paddingBottom: 20,
                     position: 'absolute',
+
                 },
-                tabBarActiveTintColor: '#e50914',
-                tabBarInactiveTintColor: '#808080',
+                tabBarActiveTintColor: '#ffffff',
+                tabBarInactiveTintColor: '#b3b3ff',
                 tabBarLabelStyle: {
                     fontSize: 12,
                     fontWeight: '600',
                     marginBottom: 5,
+                },
+                tabBarItemStyle: {
+                    marginTop: 5,
                 },
             })}
         >
@@ -56,7 +59,6 @@ function TabNavigator() {
             <Tab.Screen name="Explore" component={Explore} />
             <Tab.Screen name="My list" component={Mylist} />
             <Tab.Screen name="Profile" component={Profile} />
-
         </Tab.Navigator>
     );
 }

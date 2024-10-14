@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, TouchableOpacity, Image, Alert, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, Alert, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
@@ -13,9 +13,11 @@ import Loading from '../../components/Loading'; // นำเข้า Loading co
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5'; // นำเข้า FontAwesome5
 
 export default function Profile() {
-    const { logout, user } = useAuth();
+    const { logout, user, updateUsername } = useAuth();
     const [uploading, setUploading] = useState(false); // สถานะการอัปโหลด
     const [image, setImage] = useState(user?.profilePicture || null);
+    const [newUsername, setNewUsername] = useState(user?.username || '');
+    const [isEditingUsername, setIsEditingUsername] = useState(false);
 
     // ฟังก์ชันเลือกภาพจากคลัง
     const pickImage = async () => {
@@ -105,16 +107,27 @@ export default function Profile() {
         await logout();
     };
 
-    return (
-        <LinearGradient
-            colors={['#121212', '#121212', '#121212']}
-            style={styles.gradient}
-        >
-            <ScrollView contentContainerStyle={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.headerTitle}>โปรไฟล์</Text>
-                </View>
+    const handleUpdateUsername = async () => {
+        if (newUsername.trim() !== '' && newUsername !== user.username) {
+            const result = await updateUsername(user.userId, newUsername);
+            if (result.success) {
+                Alert.alert("สำเร็จ", "อัปเดตชื่อผู้ใช้เรียบร้อยแล้ว");
+                setIsEditingUsername(false);
+            } else {
+                Alert.alert("ข้อผิดพลาด", "ไม่สามารถอัปเดตชื่อผู้ใช้ได้ โปรดลองอีกครั้ง");
+            }
+        } else {
+            setIsEditingUsername(false);
+        }
+    };
 
+    const handleEditUsername = () => {
+        setIsEditingUsername(true);
+    };
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.headerContainer}>
                 <TouchableOpacity onPress={pickImage} style={styles.profileImageContainer}>
                     {image && !uploading ? (
                         <Image
@@ -124,7 +137,7 @@ export default function Profile() {
                         />
                     ) : (
                         <View style={styles.placeholderContainer}>
-                            <FontAwesome5 name="user-alt" size={50} color="white" />
+                            <FontAwesome5 name="user-alt" size={50} color="#6666ff" />
                         </View>
                     )}
                     {uploading && (
@@ -132,123 +145,192 @@ export default function Profile() {
                             <Loading size={50} />
                         </View>
                     )}
-                    <View style={styles.editIconContainer}>
-                        <Ionicons name="pencil" size={20} color="#fff" />
+                    <View style={styles.profileEditIconContainer}>
+                        <Ionicons name="camera" size={20} color="#fff" />
                     </View>
                 </TouchableOpacity>
+            </View>
 
-                <Text style={styles.username}>{user?.username || 'ผู้ใช้'}</Text>
-
+            <View style={styles.contentContainer}>
                 <View style={styles.infoContainer}>
                     <View style={styles.infoItem}>
-                        <Ionicons name="mail-outline" size={24} color="#e50914" />
-                        <Text style={styles.infoText}>{user?.email || 'ไม่มีอีเมล'}</Text>
+                        <View style={styles.iconContainer}>
+                            <Ionicons name="person" size={24} color="#6666ff" />
+                        </View>
+                        <View style={styles.textContainer}>
+                            {isEditingUsername ? (
+                                <TextInput
+                                    style={styles.usernameInput}
+                                    value={newUsername}
+                                    onChangeText={setNewUsername}
+                                    placeholder="ใส่ชื่อผู้ใช้ใหม่"
+                                />
+                            ) : (
+                                <Text style={styles.infoText}>{user?.username || 'ผู้ใช้'}</Text>
+                            )}
+                        </View>
+                        <TouchableOpacity
+                            onPress={isEditingUsername ? handleUpdateUsername : handleEditUsername}
+                            style={styles.usernameEditIconContainer}
+                        >
+                            <Ionicons
+                                name={isEditingUsername ? "checkmark" : "pencil"}
+                                size={20}
+                                color="#fff"
+                            />
+                        </TouchableOpacity>
                     </View>
-                    {/* เพิ่มข้อมูลผู้ใช้อื่นๆ ตามต้องการ */}
+                    <View style={styles.infoItem}>
+                        <View style={styles.iconContainer}>
+                            <Ionicons name="mail" size={24} color="#6666ff" />
+                        </View>
+                        <View style={styles.textContainer}>
+                            <Text style={styles.infoText}>{user?.email || 'ไม่มีอีเมล'}</Text>
+                        </View>
+                    </View>
                 </View>
 
                 <TouchableOpacity style={styles.logoutButton} onPress={handlerLogout}>
-                    <Ionicons name="log-out-outline" size={24} color="#fff" />
-                    <Text style={styles.logoutButtonText}>ออกจากระบบ</Text>
+                    <View style={styles.logoutGradient}>
+                        <Ionicons name="log-out" size={24} color="#fff" />
+                        <Text style={styles.logoutButtonText}>ออกจากระบบ</Text>
+                    </View>
                 </TouchableOpacity>
-            </ScrollView>
-        </LinearGradient>
+            </View>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    gradient: {
-        flex: 1,
-    },
     container: {
-        flexGrow: 1,
-        alignItems: 'center',
-        paddingBottom: 40,
-    },
-    header: {
-        width: '100%',
-        paddingHorizontal: 20,
+        flex: 1,
+        backgroundColor: '#f0f0ff',
         paddingTop: 60,
-        paddingBottom: 20,
     },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#fff',
+    headerContainer: {
+        alignItems: 'center',
+        paddingTop: 60,
+        paddingBottom: 30,
+    },
+    contentContainer: {
+        flex: 1,
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 30,
     },
     profileImageContainer: {
         width: 150,
         height: 150,
         borderRadius: 75,
-        marginVertical: 20,
-        elevation: 5,
+        borderWidth: 4,
+        borderColor: '#6666ff',
+        elevation: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.34,
+        shadowRadius: 6.27,
+        backgroundColor: '#fff',
     },
     profileImage: {
         width: '100%',
         height: '100%',
-        borderRadius: 75,
+        borderRadius: 71,
     },
     placeholderContainer: {
         width: '100%',
         height: '100%',
-        borderRadius: 75,
-        backgroundColor: '#2d3748',
+        borderRadius: 71,
+        backgroundColor: 'rgba(255,255,255,0.2)',
         justifyContent: 'center',
         alignItems: 'center',
     },
     loadingOverlay: {
         ...StyleSheet.absoluteFillObject,
         backgroundColor: 'rgba(0,0,0,0.5)',
-        borderRadius: 75,
+        borderRadius: 71,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    editIconContainer: {
+    profileEditIconContainer: {
         position: 'absolute',
-        bottom: 0,
-        right: 0,
-        backgroundColor: '#e50914',
+        bottom: -11,
+        right: 5,
+        backgroundColor: '#6666ff',
         width: 40,
         height: 40,
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    username: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#fff',
-        marginBottom: 20,
+        borderWidth: 2,
+        borderColor: '#fff',
     },
     infoContainer: {
-        width: '80%',
+        width: '100%',
         marginBottom: 30,
     },
     infoItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        borderRadius: 10,
+        backgroundColor: '#fff',
+        borderRadius: 15,
         padding: 15,
-        marginBottom: 10,
+        marginBottom: 15,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    iconContainer: {
+        width: 40,
+    },
+    textContainer: {
+        flex: 1,
+        justifyContent: 'center',
     },
     infoText: {
-        color: '#fff',
-        marginLeft: 10,
+        color: '#333',
+        fontSize: 20,
+        fontWeight: '600',
+    },
+    usernameInput: {
         fontSize: 16,
+        color: '#333',
+        borderBottomWidth: 1,
+        borderBottomColor: '#6666ff',
+        paddingVertical: 5,
     },
     logoutButton: {
+        width: '100%',
+        overflow: 'hidden',
+        borderRadius: 25,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        backgroundColor: '#ff4d4d',
+    },
+    logoutGradient: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#e50914',
-        paddingVertical: 12,
+        justifyContent: 'center',
+        paddingVertical: 15,
         paddingHorizontal: 30,
-        borderRadius: 25,
     },
     logoutButtonText: {
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+        marginLeft: 10,
+    },
+    usernameEditIconContainer: {
+        backgroundColor: '#6666ff',
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
         marginLeft: 10,
     },
 });

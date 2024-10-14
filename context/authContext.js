@@ -117,8 +117,25 @@ export const AuthContextProvider = ({ children }) => {
         }
     }
 
+    const updateUsername = async (userId, newUsername) => {
+        try {
+            const userRef = doc(db, 'users', userId);
+            await updateDoc(userRef, {
+                username: newUsername
+            });
+            setUser(prevUser => ({
+                ...prevUser,
+                username: newUsername
+            }));
+            return { success: true };
+        } catch (e) {
+            console.error('เกิดข้อผิดพลาดในการอัปเดตชื่อผู้ใช้:', e);
+            return { success: false, error: e.message };
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, addToMyList, removeFromMyList }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, addToMyList, removeFromMyList, updateUsername }}>
             {children}
         </AuthContext.Provider>
     );

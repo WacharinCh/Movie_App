@@ -1,22 +1,23 @@
-import { View, Text, StatusBar, Image, TextInput, TouchableOpacity, Pressable, Alert, StyleSheet } from 'react-native'
+import { View, Text, StatusBar, TextInput, TouchableOpacity, Alert, StyleSheet, Dimensions, KeyboardAvoidingView, ScrollView, Platform } from 'react-native'
 import React, { useState } from 'react'
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import Entypo from '@expo/vector-icons/Entypo';
 import { useRouter } from 'expo-router';
 import Loading from '../components/Loading';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import CustomKeyboardView from '../components/CustomKeyboardView';
 import { useAuth } from '../context/authContext';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function SignUP() {
+const { width, height } = Dimensions.get('window');
 
+export default function SignUp() {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [username, setUsername] = useState('')
-    const [confirmpassword, setConfirmPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+    const [focusedInput, setFocusedInput] = useState(null);
 
     const { register } = useAuth()
 
@@ -27,7 +28,7 @@ export default function SignUP() {
 
     const handleRegister = async () => {
 
-        if (!email || !password || !username || !confirmpassword) {
+        if (!email || !password || !username || !confirmPassword) {
             Alert.alert('Sign Up', "Please fill all the fields!")
             return;
         }
@@ -37,7 +38,7 @@ export default function SignUP() {
             return;
         }
 
-        if (password !== confirmpassword) {
+        if (password !== confirmPassword) {
             Alert.alert('Sign Up', "Passwords do not match!")
             return;
         }
@@ -52,160 +53,212 @@ export default function SignUP() {
 
     }
 
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <Loading size={200} />
+            </View>
+        )
+    }
+
     return (
-        <CustomKeyboardView>
-            <StatusBar style='dark' />
-            <View style={styles.container}>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.container}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        >
+            <ScrollView
+                contentContainerStyle={styles.scrollViewContent}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => router.replace('signIn')}
+                >
+                    <Ionicons name="arrow-back" size={24} color="#000" />
+                </TouchableOpacity>
+
                 <View style={styles.content}>
-                    <View style={styles.logoContainer}>
-                        <Image style={styles.logo} resizeMode='contain' source={require('../assets/images/logo.png')} />
+                    <View style={styles.titleContainer}>
+                        <Text style={styles.titleBlue}>Sign-up</Text>
+                        <Text style={styles.titleBlack}> your account</Text>
                     </View>
 
-                    <View style={styles.formContainer}>
-                        <Text style={styles.title}>Sign UP</Text>
+                    <View style={[
+                        styles.inputContainer,
+                        focusedInput === 'username' && styles.inputContainerFocused
+                    ]}>
+                        <Ionicons name="person-outline" size={20} color={focusedInput === 'username' ? '#6666ff' : 'gray'} />
+                        <TextInput
+                            onChangeText={value => setUsername(value)}
+                            style={styles.input}
+                            placeholder='Username'
+                            placeholderTextColor={'gray'}
+                            onFocus={() => setFocusedInput('username')}
+                            onBlur={() => setFocusedInput(null)}
+                        />
+                    </View>
 
-                        <View style={styles.inputContainer}>
-                            <FontAwesome5 name="user-alt" size={hp(2.5)} color="gray" />
-                            <TextInput
-                                onChangeText={value => setUsername(value)}
-                                style={styles.input}
-                                placeholder='Username'
-                                placeholderTextColor={'gray'}
-                            />
-                        </View>
+                    <View style={[
+                        styles.inputContainer,
+                        focusedInput === 'email' && styles.inputContainerFocused
+                    ]}>
+                        <Ionicons name="mail-outline" size={20} color={focusedInput === 'email' ? '#6666ff' : 'gray'} />
+                        <TextInput
+                            onChangeText={value => setEmail(value)}
+                            style={styles.input}
+                            placeholder='Email address'
+                            placeholderTextColor={'gray'}
+                            keyboardType='email-address'
+                            autoCapitalize='none'
+                            onFocus={() => setFocusedInput('email')}
+                            onBlur={() => setFocusedInput(null)}
+                        />
+                    </View>
 
-                        <View style={styles.inputContainer}>
-                            <Entypo name="mail" size={hp(2.7)} color="gray" />
-                            <TextInput
-                                onChangeText={value => setEmail(value)}
-                                style={styles.input}
-                                placeholder='Email address'
-                                placeholderTextColor={'gray'}
-                            />
-                        </View>
+                    <View style={[
+                        styles.inputContainer,
+                        focusedInput === 'password' && styles.inputContainerFocused
+                    ]}>
+                        <Ionicons name="lock-closed-outline" size={20} color={focusedInput === 'password' ? '#6666ff' : 'gray'} />
+                        <TextInput
+                            onChangeText={value => setPassword(value)}
+                            style={styles.input}
+                            placeholder='Password'
+                            secureTextEntry={!showPassword}
+                            placeholderTextColor={'gray'}
+                            onFocus={() => setFocusedInput('password')}
+                            onBlur={() => setFocusedInput(null)}
+                        />
+                        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                            <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color={focusedInput === 'password' ? '#6666ff' : 'gray'} />
+                        </TouchableOpacity>
+                    </View>
 
-                        <View style={styles.inputContainer}>
-                            <Entypo name="key" size={hp(2.7)} color="gray" />
-                            <TextInput
-                                onChangeText={value => setPassword(value)}
-                                style={styles.input}
-                                placeholder='Password'
-                                secureTextEntry
-                                placeholderTextColor={'gray'}
-                            />
-                        </View>
+                    <View style={[
+                        styles.inputContainer,
+                        focusedInput === 'confirmPassword' && styles.inputContainerFocused
+                    ]}>
+                        <Ionicons name="lock-closed-outline" size={20} color={focusedInput === 'confirmPassword' ? '#6666ff' : 'gray'} />
+                        <TextInput
+                            onChangeText={value => setConfirmPassword(value)}
+                            style={styles.input}
+                            placeholder='Confirm Password'
+                            secureTextEntry={!showConfirmPassword}
+                            placeholderTextColor={'gray'}
+                            onFocus={() => setFocusedInput('confirmPassword')}
+                            onBlur={() => setFocusedInput(null)}
+                        />
+                        <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                            <Ionicons name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} size={20} color={focusedInput === 'confirmPassword' ? '#6666ff' : 'gray'} />
+                        </TouchableOpacity>
+                    </View>
 
-                        <View style={styles.inputContainer}>
-                            <Entypo name="key" size={hp(2.7)} color="gray" />
-                            <TextInput
-                                onChangeText={value => setConfirmPassword(value)}
-                                style={styles.input}
-                                placeholder='Confirm Password'
-                                secureTextEntry
-                                placeholderTextColor={'gray'}
-                            />
-                        </View>
+                    <TouchableOpacity onPress={handleRegister} style={styles.button}>
+                        <Text style={styles.buttonText}>Sign up</Text>
+                    </TouchableOpacity>
 
-                        <View>
-                            {loading ? (
-                                <View style={styles.loadingContainer}>
-                                    <Loading size={hp(15)} />
-                                </View>
-                            ) : (
-                                <TouchableOpacity onPress={handleRegister} style={styles.button}>
-                                    <Text style={styles.buttonText}>
-                                        Sign Up
-                                    </Text>
-                                </TouchableOpacity>
-                            )}
-                        </View>
-
-                        <View style={styles.footer}>
-                            <Text style={styles.footerText}>
-                                Already have an account?
+                    <View style={styles.footer}>
+                        <Text style={styles.footerText}>
+                            Already have an account?
+                        </Text>
+                        <TouchableOpacity onPress={() => router.push('signIn')}>
+                            <Text style={styles.footerLink}>
+                                Sign in
                             </Text>
-                            <Pressable onPress={() => router.push('signIn')}>
-                                <Text style={styles.footerLink}>
-                                    Sign In
-                                </Text>
-                            </Pressable>
-                        </View>
+                        </TouchableOpacity>
                     </View>
                 </View>
-            </View>
-        </CustomKeyboardView>
+            </ScrollView>
+        </KeyboardAvoidingView>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: wp(4),
+        backgroundColor: '#f0f0ff',
+    },
+    scrollViewContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        paddingHorizontal: wp(6),
+    },
+    backButton: {
+        marginTop: hp(6),
+        marginBottom: hp(2),
     },
     content: {
-        gap: 48,
+        flex: 1,
+        justifyContent: 'center',
+        gap: hp(2.5),
     },
-    logoContainer: {
-        alignItems: 'center',
+    titleContainer: {
+        flexDirection: 'row',
+        marginBottom: hp(4),
     },
-    logo: {
-        height: hp(50),
-        width: wp(50),
-    },
-    formContainer: {
-        gap: 16,
-        marginTop: -150,
-    },
-    title: {
+    titleBlue: {
         fontSize: hp(4),
         fontWeight: 'bold',
-        textAlign: 'center',
-        color: '#333',
+        color: '#6666ff',
+    },
+    titleBlack: {
+        fontSize: hp(4),
+        fontWeight: 'bold',
+        color: '#000',
     },
     inputContainer: {
         flexDirection: 'row',
-        gap: 16,
-        paddingHorizontal: 16,
-        backgroundColor: '#f5f5f5',
         alignItems: 'center',
-        borderRadius: 16,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        paddingHorizontal: wp(4),
         height: hp(7),
+        borderWidth: 1,
+        borderColor: 'transparent',
+    },
+    inputContainerFocused: {
+        borderColor: '#6666ff',
+        backgroundColor: '#f0f0ff',
     },
     input: {
         flex: 1,
         fontSize: hp(2),
-        fontWeight: '600',
-        color: '#333',
-    },
-    loadingContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
+        marginLeft: wp(2),
     },
     button: {
+        backgroundColor: '#6666ff',
+        borderRadius: 25,
         height: hp(7),
-        backgroundColor: '#6366f1',
-        borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
+        marginTop: hp(2),
     },
     buttonText: {
-        fontSize: hp(2.7),
         color: 'white',
+        fontSize: hp(2.2),
         fontWeight: 'bold',
     },
     footer: {
         flexDirection: 'row',
         justifyContent: 'center',
-        gap: 8,
+        marginTop: hp(4),
     },
     footerText: {
+        color: 'gray',
         fontSize: hp(1.8),
-        color: '#666',
-        fontWeight: '600',
     },
     footerLink: {
+        color: '#6666ff',
         fontSize: hp(1.8),
-        color: '#6366f1',
-        fontWeight: '600',
+        fontWeight: 'bold',
+        marginLeft: wp(1),
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f0f0ff',
     },
 });
