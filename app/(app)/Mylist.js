@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, ImageBackground, TextInput } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, ImageBackground, TextInput, Image, Dimensions } from 'react-native';
 import { useAuth } from '../../context/authContext';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 
 export default function Mylist() {
@@ -51,7 +51,7 @@ export default function Mylist() {
                             <Text style={styles.movieRating}>{item.vote_average.toFixed(1)}</Text>
                         </View>
                         <TouchableOpacity style={styles.playButton}>
-                            <Icon name="play-circle-outline" size={24} color="#fff" />
+                            <Ionicons name="play-circle-outline" size={24} color="#fff" />
                             <Text style={styles.playButtonText}>Play</Text>
                         </TouchableOpacity>
                     </View>
@@ -75,8 +75,6 @@ export default function Mylist() {
         },
         contentContainer: {
             flex: 1,
-            paddingTop: 10,
-
         },
         headerBlur: {
             position: 'absolute',
@@ -102,13 +100,13 @@ export default function Mylist() {
             padding: 10,
         },
         listContainer: {
-            paddingTop: isSearchVisible ? 110 : 60,
+            paddingTop: 60, // ปรับค่านี้ให้มากกว่าความสูงของ header
             paddingHorizontal: 10,
         },
         movieItem: {
             width: '47%',
             marginHorizontal: '1.5%',
-            marginBottom: 10,
+
             borderRadius: 15,
             overflow: 'hidden',
             elevation: 5,
@@ -202,13 +200,12 @@ export default function Mylist() {
             flexDirection: 'row',
             alignItems: 'center',
             backgroundColor: '#fff',
-            borderRadius: 25,
+            borderRadius: 15,
             borderColor: '#6666ff',
             marginHorizontal: 20,
-            marginTop: -10,
             marginBottom: 10,
             paddingHorizontal: 15,
-            paddingVertical: 10,
+            paddingVertical: 12,
             elevation: 3,
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 2 },
@@ -220,7 +217,7 @@ export default function Mylist() {
         },
         searchInput: {
             flex: 1,
-            fontSize: 16,
+            fontSize: 20,
             color: '#333',
         },
     });
@@ -234,31 +231,34 @@ export default function Mylist() {
                         renderItem={renderMovieItem}
                         keyExtractor={(item) => item.id.toString()}
                         numColumns={2}
-                        contentContainerStyle={styles.listContainer}
+                        contentContainerStyle={[
+                            styles.listContainer,
+                            isSearchVisible && { paddingTop: 130 } // ปรับ paddingTop เมื่อแสดงช่องค้นหา
+                        ]}
                     />
                 ) : (
-                    <View style={styles.emptyContainer}>
-                        <Icon name="film-outline" size={80} color="#6666ff" />
-                        <Text style={styles.emptyText}>You don't have any movies in your list yet</Text>
+                    <View style={[styles.emptyContainer, { marginTop: isSearchVisible ? 160 : 110 }]}>
+                        <Ionicons name="film-outline" size={80} color="#6666ff" />
+                        <Text style={styles.emptyText}>คุณยังไม่มีภาพยนตร์ในรายการของคุณ</Text>
                         <TouchableOpacity style={styles.exploreButton}>
-                            <Text style={styles.exploreButtonText}>Explore Movies</Text>
+                            <Text style={styles.exploreButtonText}>สำรวจภาพยนตร์</Text>
                         </TouchableOpacity>
                     </View>
                 )}
             </SafeAreaView>
             <BlurView intensity={80} tint="light" style={styles.headerBlur}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>My Movie List</Text>
+                    <Text style={styles.headerTitle}>My List</Text>
                     <TouchableOpacity onPress={handleSearchPress} style={styles.searchButton}>
-                        <Icon name={isSearchVisible ? "close" : "search"} size={24} color="#6666ff" />
+                        <Ionicons name={isSearchVisible ? "close" : "search"} size={24} color="#6666ff" />
                     </TouchableOpacity>
                 </View>
                 {isSearchVisible && (
                     <View style={styles.searchInputContainer}>
-                        <Icon name="search" size={20} color="#6666ff" style={styles.searchIcon} />
+                        <Ionicons name="search" size={20} color="#6666ff" style={styles.searchIcon} />
                         <TextInput
                             style={styles.searchInput}
-                            placeholder="Search my movie list"
+                            placeholder="ค้นหาในรายการของฉัน"
                             placeholderTextColor="#999"
                             value={searchQuery}
                             onChangeText={handleSearch}

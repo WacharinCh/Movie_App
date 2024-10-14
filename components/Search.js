@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, Image, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, TextInput, FlatList, Image, StyleSheet, TouchableOpacity, ImageBackground, Keyboard, TouchableWithoutFeedback, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Loading from './Loading';
 import FilterModal from './FilterModal';
 import config from '../config';
+import { BlurView } from 'expo-blur';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function Search() {
     const [searchQuery, setSearchQuery] = useState('');
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
@@ -21,6 +27,8 @@ export default function Search() {
         sort: 'popularity.desc'
     });
     const [genres, setGenres] = useState([]);
+
+    const translateY = useSharedValue(SCREEN_HEIGHT);
 
     useEffect(() => {
         fetchGenres();
@@ -47,12 +55,22 @@ export default function Search() {
 
     const toggleFilterModal = () => {
         setIsFilterModalVisible(!isFilterModalVisible);
+        if (!isFilterModalVisible) {
+            translateY.value = withTiming(0, {
+                duration: 300,
+                easing: Easing.out(Easing.cubic)
+            });
+        } else {
+            translateY.value = withTiming(SCREEN_HEIGHT, {
+                duration: 300,
+                easing: Easing.in(Easing.cubic)
+            });
+        }
     };
 
     const applyFilters = (newFilters) => {
         setFilters(newFilters);
-        setIsFilterModalVisible(false);
-        // เรียกฟังก์ชันค้นหาใหม่โดยใช้ตัวกรอง
+        toggleFilterModal();
         searchMovies(newFilters);
     };
 
@@ -126,81 +144,153 @@ export default function Search() {
         </TouchableOpacity>
     );
 
+    const dismissKeyboard = () => {
+        Keyboard.dismiss();
+    };
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateY: translateY.value }],
+        };
+    });
+
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="chevron-back" size={24} color="#fff" />
-                </TouchableOpacity>
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search movies..."
-                    placeholderTextColor="#999"
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                />
-                <TouchableOpacity onPress={toggleFilterModal} style={styles.filterButton}>
-                    <MaterialIcons name="filter-list" size={28} color="#fff" />
-                </TouchableOpacity>
-            </View>
-            {loading ? (
-                <View style={styles.loadingContainer}>
-                    <Loading size={50} />
+        <TouchableWithoutFeedback onPress={dismissKeyboard}>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+                <View style={styles.container}>
+                    {loading ? (
+                        <View style={styles.loadingContainer}>
+                            <Loading size={200} />
+                        </View>
+                    ) : searchResults.length > 0 ? (
+                        <FlatList
+                            data={searchResults}
+                            renderItem={renderMovieItem}
+                            keyExtractor={(item) => item.id.toString()}
+                            numColumns={2}
+                            contentContainerStyle={styles.movieList}
+                        />
+                    ) : searchQuery.length > 2 ? (
+                        <View style={styles.noResultsContainer}>
+                            <Text style={styles.noResultsText}>ไม่พบผลลัพธ์</Text>
+                        </View>
+                    ) : null}
+                    <BlurView intensity={80} tint="light" style={styles.headerBlur}>
+                        <View style={styles.header}>
+                            <View style={styles.searchAndFilterContainer}>
+                                <View style={[
+                                    styles.searchContainer,
+                                    isSearchFocused && styles.searchContainerFocused
+                                ]}>
+                                    <Ionicons name="search" size={20} color="#6666ff" style={styles.searchIcon} />
+                                    <TextInput
+                                        style={styles.searchInput}
+                                        placeholder="คุณกำลังมองหาอะไร?"
+                                        placeholderTextColor="gray"
+                                        value={searchQuery}
+                                        onChangeText={setSearchQuery}
+                                        onFocus={() => setIsSearchFocused(true)}
+                                        onBlur={() => setIsSearchFocused(false)}
+                                    />
+                                </View>
+                                <TouchableOpacity
+                                    onPress={toggleFilterModal}
+                                    style={[
+                                        styles.filterButton,
+                                        isFilterModalVisible && styles.filterButtonActive
+                                    ]}
+                                >
+                                    <Ionicons name="options-outline" size={24} color="#6666ff" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </BlurView>
+                    <Animated.View style={[styles.filterModalContainer, animatedStyle]}>
+                        <FilterModal
+                            isVisible={isFilterModalVisible}
+                            onClose={toggleFilterModal}
+                            onApply={applyFilters}
+                            currentFilters={filters}
+                            genres={genres}
+                        />
+                    </Animated.View>
                 </View>
-            ) : searchResults.length > 0 ? (
-                <FlatList
-                    data={searchResults}
-                    renderItem={renderMovieItem}
-                    keyExtractor={(item) => item.id.toString()}
-                    numColumns={2}
-                    contentContainerStyle={styles.movieList}
-                />
-            ) : searchQuery.length > 2 ? (
-                <View style={styles.noResultsContainer}>
-                    <Text style={styles.noResultsText}>No results found</Text>
-                </View>
-            ) : null}
-            <FilterModal
-                isVisible={isFilterModalVisible}
-                onClose={toggleFilterModal}
-                onApply={applyFilters}
-                currentFilters={filters}
-                genres={genres}
-            />
-        </SafeAreaView>
+            </GestureHandlerRootView>
+        </TouchableWithoutFeedback>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#121212',
+        backgroundColor: '#ffffff',
+        paddingTop: 50
+    },
+    contentContainer: {
+        flex: 1,
+        paddingTop: 10,
+    },
+    headerBlur: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
     },
     header: {
+        paddingHorizontal: 20,
+        paddingTop: 50,
+        paddingBottom: 10,
+    },
+    searchAndFilterContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 15,
-        paddingVertical: 10,
+        justifyContent: 'space-between',
     },
-    backButton: {
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f0f0ff',
+        borderRadius: 10,
+        paddingHorizontal: 15,
+        paddingVertical: 12,
+        flex: 1,
         marginRight: 10,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        borderRadius: 20,
-        padding: 8,
+        borderWidth: 1,
+        borderColor: 'transparent',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+    },
+    searchContainerFocused: {
+        borderColor: '#6666ff',
+    },
+    searchIcon: {
+        marginRight: 10,
+
     },
     searchInput: {
         flex: 1,
-        height: 40,
-        backgroundColor: '#333',
-        borderRadius: 20,
-        paddingHorizontal: 15,
-        color: '#fff',
-        placeholder: 'Search movies...',
+        fontSize: 16,
+        color: '#000',
     },
     filterButton: {
-        marginLeft: 10,
+        padding: 10,
+        backgroundColor: '#f0f0ff',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'transparent',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+    },
+    filterButtonActive: {
+        borderColor: '#6666ff',
     },
     movieList: {
+        paddingTop: 60,
         paddingHorizontal: 10,
     },
     movieItem: {
@@ -210,6 +300,10 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         overflow: 'hidden',
         elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
     moviePoster: {
         width: '100%',
@@ -259,13 +353,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     noResultsText: {
-        color: '#fff',
+        color: '#6666ff',
         fontSize: 18,
-        text: 'No results found',
+        text: 'ไม่พบผลลัพธ์',
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    filterModalContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: SCREEN_HEIGHT * 0.8,
     },
 });

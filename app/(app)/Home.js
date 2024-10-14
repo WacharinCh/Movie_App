@@ -535,6 +535,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 10,
+
     },
     movieImage: {
         width: '100%',
@@ -684,6 +685,7 @@ const styles = StyleSheet.create({
     },
     genreButtonContainer: {
         flexDirection: 'row',
+
     },
     genreButton: {
         backgroundColor: 'rgba(0, 0, 0, 0.3)',

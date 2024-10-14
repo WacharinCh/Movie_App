@@ -3,6 +3,7 @@ import { getReactNativePersistence, initializeAuth } from 'firebase/auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage'; // Import the correct Firebase Storage method
+import { getAuth } from 'firebase/auth';
 import ConfigKeys from './config';
 import config from "./config";
 // Your Firebase config object
@@ -18,10 +19,14 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Auth
-export const auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage)
-});
+// ตรวจสอบแพลตฟอร์มและกำหนดค่า auth ตามความเหมาะสม
+import { Platform } from 'react-native';
+
+export const auth = Platform.OS === 'web'
+    ? getAuth(app)
+    : initializeAuth(app, {
+        persistence: getReactNativePersistence(AsyncStorage)
+    });
 
 // Initialize Firestore
 export const db = getFirestore(app);

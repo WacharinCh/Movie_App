@@ -1,8 +1,56 @@
-import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
+import { PanGestureHandler } from 'react-native-gesture-handler';
+import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming, runOnJS, Easing } from 'react-native-reanimated';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const FilterModal = ({ isVisible, onClose, onApply, currentFilters, genres }) => {
     const [localFilters, setLocalFilters] = useState(currentFilters);
+    const translateY = useSharedValue(SCREEN_HEIGHT);
+
+    useEffect(() => {
+        if (isVisible) {
+            translateY.value = withTiming(0, {
+                duration: 300,
+                easing: Easing.out(Easing.cubic)
+            });
+        } else {
+            translateY.value = withTiming(SCREEN_HEIGHT, {
+                duration: 300,
+                easing: Easing.in(Easing.cubic)
+            });
+        }
+    }, [isVisible]);
+
+    const gestureHandler = useAnimatedGestureHandler({
+        onStart: (_, ctx) => {
+            ctx.startY = translateY.value;
+        },
+        onActive: (event, ctx) => {
+            translateY.value = Math.max(0, ctx.startY + event.translationY);
+        },
+        onEnd: (event) => {
+            if (event.velocityY > 500 || event.translationY > SCREEN_HEIGHT * 0.2) {
+                translateY.value = withTiming(SCREEN_HEIGHT, {
+                    duration: 300,
+                    easing: Easing.in(Easing.cubic)
+                });
+                runOnJS(onClose)();
+            } else {
+                translateY.value = withTiming(0, {
+                    duration: 300,
+                    easing: Easing.out(Easing.cubic)
+                });
+            }
+        },
+    });
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateY: translateY.value }],
+        };
+    });
 
     const handleApply = () => {
         onApply(localFilters);
@@ -60,91 +108,88 @@ const FilterModal = ({ isVisible, onClose, onApply, currentFilters, genres }) =>
     return (
         <Modal
             visible={isVisible}
-            animationType="slide"
             transparent={true}
             onRequestClose={onClose}
+            animationType="none"
         >
-            <TouchableOpacity
-                style={styles.modalContainer}
-                activeOpacity={1}
-                onPress={onClose}
-            >
-                <TouchableOpacity
-                    style={styles.modalContent}
-                    activeOpacity={1}
-                    onPress={(e) => e.stopPropagation()}
-                >
-                    <SafeAreaView>
-                        <Text style={styles.title}>Filters and Sorting</Text>
-                        <View style={styles.contentContainer}>
-                            <Text style={styles.sectionTitle}>Categories</Text>
-                            <View style={styles.categoriesContainer}>
-                                {renderFilterOptions(genres.map(genre => ({
-                                    value: genre.id.toString(),
-                                    label: genre.name
-                                })), 'categories')}
-                            </View>
+            <View style={styles.modalOverlay}>
+                <PanGestureHandler onGestureEvent={gestureHandler}>
+                    <Animated.View style={[styles.modalContainer, animatedStyle]}>
+                        <View style={styles.modalContent}>
+                            <View style={styles.dragIndicator} />
+                            <SafeAreaView>
+                                <Text style={styles.title}>Filters and Sorting</Text>
+                                <View style={styles.contentContainer}>
+                                    <Text style={styles.sectionTitle}>Categories</Text>
+                                    <View style={styles.categoriesContainer}>
+                                        {renderFilterOptions(genres.map(genre => ({
+                                            value: genre.id.toString(),
+                                            label: genre.name
+                                        })), 'categories')}
+                                    </View>
 
-                            <Text style={styles.sectionTitle}>Time Periods</Text>
-                            <View style={styles.optionsContainer}>
-                                {renderFilterOptions(['2020s', '2010s', '2000s', '1990s'], 'timePeriods')}
-                            </View>
+                                    <Text style={styles.sectionTitle}>Time Periods</Text>
+                                    <View style={styles.optionsContainer}>
+                                        {renderFilterOptions(['2020s', '2010s', '2000s', '1990s'], 'timePeriods')}
+                                    </View>
 
-                            <Text style={styles.sectionTitle}>Sort By</Text>
-                            <View style={styles.optionsContainer}>
-                                {renderFilterOptions([
-                                    { label: 'Popularity', value: 'popularity.desc' },
-                                    { label: 'Rating', value: 'vote_average.desc' },
-                                ], 'sort')}
-                            </View>
+                                    <Text style={styles.sectionTitle}>Sort By</Text>
+                                    <View style={styles.optionsContainer}>
+                                        {renderFilterOptions([
+                                            { label: 'Popularity', value: 'popularity.desc' },
+                                            { label: 'Rating', value: 'vote_average.desc' },
+                                        ], 'sort')}
+                                    </View>
+                                </View>
+                                <View style={styles.buttonContainer}>
+                                    <TouchableOpacity style={styles.resetButton} onPress={() => setLocalFilters(currentFilters)}>
+                                        <Text style={styles.resetButtonText}>Reset</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.applyButton} onPress={handleApply}>
+                                        <Text style={styles.applyButtonText}>Apply</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </SafeAreaView>
                         </View>
-                        <View style={styles.buttonContainer}>
-                            <TouchableOpacity style={styles.resetButton} onPress={() => setLocalFilters(currentFilters)}>
-                                <Text style={styles.resetButtonText}>Reset</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.applyButton} onPress={handleApply}>
-                                <Text style={styles.applyButtonText}>Apply</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </SafeAreaView>
-                </TouchableOpacity>
-            </TouchableOpacity>
+                    </Animated.View>
+                </PanGestureHandler>
+            </View>
         </Modal>
     );
 };
 
 const styles = StyleSheet.create({
-    modalContainer: {
+    modalOverlay: {
         flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
         justifyContent: 'flex-end',
-        backgroundColor: 'transparent ',
     },
-    modalContent: {
-        backgroundColor: '#1E1E1E',
+    modalContainer: {
+        backgroundColor: 'white',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        paddingTop: 20,
-        paddingHorizontal: 20,
-        paddingBottom: 40,
-        maxHeight: '80%',
+        height: SCREEN_HEIGHT * 0.8, // ปรับความสูงตามต้องการ
+    },
+    modalContent: {
+        padding: 20,
     },
     title: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 15,
         textAlign: 'center',
-        color: '#FFFFFF',
+        color: '#6666ff',
         text: 'Filters and Sorting',
     },
     scrollView: {
         marginBottom: 20,
     },
     sectionTitle: {
-        fontSize: 16,
+        fontSize: 20,
         fontWeight: 'bold',
-        marginTop: 15,
+        marginTop: 10,
         marginBottom: 10,
-        color: '#FFFFFF',
+        color: '#6666ff',
     },
     optionsRow: {
         flexDirection: 'row',
@@ -156,15 +201,23 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         marginRight: 10,
         marginBottom: 10,
-        backgroundColor: '#333333',
+        backgroundColor: '#ffffff',
+        borderWidth: 1,
+        borderColor: '#6666ff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+
 
     },
     selectedOption: {
-        backgroundColor: '#e50914',
-        borderColor: '#e50914',
+        backgroundColor: '#6666ff',
+        borderColor: '#6666ff',
+
     },
     filterOptionText: {
-        color: '#FFFFFF',
+        color: '#6666ff',
     },
     selectedOptionText: {
         color: '#FFFFFF',
@@ -177,11 +230,17 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 15,
         borderRadius: 10,
-        backgroundColor: '#333333',
+        backgroundColor: '#ffffff',
         marginRight: 10,
+        borderWidth: 1,
+        borderColor: '#6666ff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
     },
     resetButtonText: {
-        color: '#FFFFFF',
+        color: '#6666ff',
         textAlign: 'center',
         fontWeight: 'bold',
         text: 'Reset',
@@ -190,7 +249,11 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 15,
         borderRadius: 10,
-        backgroundColor: '#e50914',
+        backgroundColor: '#6666ff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
     },
     applyButtonText: {
         color: '#FFFFFF',
@@ -212,6 +275,14 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         marginBottom: 20,
+    },
+    dragIndicator: {
+        width: 40,
+        height: 5,
+        backgroundColor: '#ccc',
+        borderRadius: 3,
+        alignSelf: 'center',
+        marginBottom: 10,
     },
 });
 
