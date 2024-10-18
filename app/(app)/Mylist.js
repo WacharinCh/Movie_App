@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, ImageBackground, TextInput, Image, Dimensions } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, ImageBackground, TextInput, Image, Dimensions, Animated } from 'react-native';
 import { useAuth } from '../../context/authContext';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,12 +11,46 @@ export default function Mylist() {
     const [myList, setMyList] = useState([]);
     const [filteredList, setFilteredList] = useState([]);
     const navigation = useNavigation();
+    const [isSearchActive, setIsSearchActive] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const searchInputRef = useRef(null);
+    const searchWidthAnim = useRef(new Animated.Value(0)).current;
+
     useEffect(() => {
         if (user && user.myList) {
             setMyList(user.myList);
             setFilteredList(user.myList);
         }
     }, [user]);
+
+    useEffect(() => {
+        Animated.timing(searchWidthAnim, {
+            toValue: isSearchActive ? 1 : 0,
+            duration: 300,
+            useNativeDriver: false,
+        }).start();
+
+        if (isSearchActive && searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
+    }, [isSearchActive]);
+
+    const handleSearch = (text) => {
+        setSearchQuery(text);
+        const filtered = myList.filter(movie =>
+            movie.title.toLowerCase().includes(text.toLowerCase())
+        );
+        setFilteredList(filtered);
+    };
+
+    const toggleSearch = () => {
+        setIsSearchActive(!isSearchActive);
+        if (isSearchActive) {
+            setSearchQuery('');
+            setFilteredList(myList);
+        }
+    };
+
     const handleExplorePress = () => {
         navigation.navigate('Explore');
     };
@@ -175,6 +209,25 @@ export default function Mylist() {
             paddingTop: 50,
             paddingBottom: 10,
         },
+        searchContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
+        searchInputContainer: {
+            overflow: 'hidden',
+        },
+        searchInput: {
+            backgroundColor: '#f0f0f0',
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: '#6666ff',
+            paddingHorizontal: 15,
+            paddingVertical: 8,
+            width: '100%',
+        },
+        searchButton: {
+            padding: 10,
+        },
         userInfo: {
             flexDirection: 'row',
             alignItems: 'center',
@@ -203,9 +256,6 @@ export default function Mylist() {
             fontSize: 24,
             fontWeight: 'bold',
             color: '#6666ff',
-        },
-        searchButton: {
-            padding: 10,
         },
     });
 
@@ -250,9 +300,31 @@ export default function Mylist() {
                         )}
                         <Text style={styles.username}>My List</Text>
                     </View>
-                    <TouchableOpacity style={styles.searchButton}>
-                        <Ionicons name="search" size={24} color="#6666ff" />
-                    </TouchableOpacity>
+                    <View style={styles.searchContainer}>
+                        <Animated.View style={[
+                            styles.searchInputContainer,
+                            {
+                                width: searchWidthAnim.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [0, 150]
+                                }),
+                                opacity: searchWidthAnim
+                            }
+                        ]}>
+                            {isSearchActive && (
+                                <TextInput
+                                    ref={searchInputRef}
+                                    style={styles.searchInput}
+                                    placeholder="Search for a movie..."
+                                    value={searchQuery}
+                                    onChangeText={handleSearch}
+                                />
+                            )}
+                        </Animated.View>
+                        <TouchableOpacity style={styles.searchButton} onPress={toggleSearch}>
+                            <Ionicons name={isSearchActive ? "close" : "search"} size={24} color="#6666ff" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </BlurView>
         </View>

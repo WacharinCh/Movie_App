@@ -10,9 +10,7 @@ const MainLayout = () => {
     useEffect(() => {
         if (typeof isAuthenticated == "undefined") return;
         const inAuthGroup = segments[0] === '(auth)';
-
         if (isAuthenticated && !inAuthGroup) {
-            // แก้ไขเงื่อนไขตรงนี้
             if (user && user.profilePicture) {
                 router.replace('Home');
             } else if (user && !user.profilePicture) {
@@ -22,7 +20,6 @@ const MainLayout = () => {
             router.replace('Welcome');
         }
     }, [isAuthenticated, user]);
-
     return <Slot />
 }
 
