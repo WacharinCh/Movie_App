@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     movieItem: {
         width: '47%',
         marginHorizontal: '1.5%',
-        marginBottom: 20,
+        marginBottom: 15,
         borderRadius: 15,
         overflow: 'hidden',
         elevation: 5,

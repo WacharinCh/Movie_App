@@ -72,12 +72,12 @@ export default function SignUp() {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
             >
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     style={styles.backButton}
                     onPress={() => router.replace('signIn')}
                 >
                     <Ionicons name="arrow-back" size={24} color="#000" />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <View style={styles.content}>
                     <View style={styles.titleContainer}>
@@ -247,11 +247,11 @@ const styles = StyleSheet.create({
     },
     footerText: {
         color: 'gray',
-        fontSize: hp(1.8),
+        fontSize: hp(2),
     },
     footerLink: {
         color: '#6666ff',
-        fontSize: hp(1.8),
+        fontSize: hp(2),
         fontWeight: 'bold',
         marginLeft: wp(1),
     },

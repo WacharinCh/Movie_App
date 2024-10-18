@@ -1,6 +1,4 @@
-import { View, Text } from 'react-native';
 import React from 'react';
-import { Stack } from 'expo-router';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Home from './Home';

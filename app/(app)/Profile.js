@@ -4,16 +4,16 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/authContext';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase storage
-import { doc, updateDoc } from 'firebase/firestore'; // Firestore
-import { db, storage } from '../../firebaesConfig'; // Firebase config
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db, storage } from '../../firebaesConfig';
 import * as ImagePicker from 'expo-image-picker';
 import { Platform } from 'react-native';
-import Loading from '../../components/Loading'; // นำเข้า Loading component
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5'; // นำเข้า FontAwesome5
+import Loading from '../../components/Loading';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 export default function Profile() {
-    const { logout, user, updateUsername } = useAuth();
+    const { logout, user, updateUsername, updateProfilePicture } = useAuth();
     const [uploading, setUploading] = useState(false); // สถานะการอัปโหลด
     const [image, setImage] = useState(user?.profilePicture || null);
     const [newUsername, setNewUsername] = useState(user?.username || '');
@@ -66,15 +66,13 @@ export default function Profile() {
 
             const response = await fetch(platformUri);
 
-            // ตรวจสอบว่าดึงภาพได้สำเร็จหรือไม่
             if (!response.ok) {
                 throw new Error('Failed to fetch the image from the URI.');
             }
 
             const blob = await response.blob();
 
-            // ตรวจสอบขนาดไฟล์ (จำกัดที่ 5MB)
-            const fileSizeInMB = blob.size / (1024 * 1024); // แปลงขนาดเป็น MB
+            const fileSizeInMB = blob.size / (1024 * 1024);
             if (fileSizeInMB > 5) {
                 throw new Error('Image size is too large. Please select an image under 5MB.');
             }
@@ -83,16 +81,16 @@ export default function Profile() {
             const snapshot = await uploadBytes(storageRef, blob);
 
             const downloadURL = await getDownloadURL(snapshot.ref);
-            await updateDoc(doc(db, "users", user.userId), { profilePicture: downloadURL });
+            await updateProfilePicture(user.userId, downloadURL); // ใช้ฟังก์ชัน updateProfilePicture
 
-            setImage(downloadURL); // อัปเดต image ด้วย URL ใหม่หลังจากอัปโหลดเสร็จ
+            setImage(downloadURL);
             Alert.alert("Success", "Profile picture uploaded successfully!");
 
         } catch (error) {
             console.error("Image upload failed:", error);
             Alert.alert("Error", error.message || "Image upload failed. Please try again.");
         } finally {
-            setUploading(false); // จบการอัปโหลด
+            setUploading(false);
         }
     };
 

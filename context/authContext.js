@@ -123,10 +123,18 @@ export const AuthContextProvider = ({ children }) => {
             await updateDoc(userRef, {
                 username: newUsername
             });
+
+            // ดึงข้อมูลผู้ใช้ใหม่หลังจากอัปเดตชื่อผู้ใช้
+            const updatedUserDoc = await getDoc(userRef);
+            const updatedUserData = updatedUserDoc.data();
+
             setUser(prevUser => ({
                 ...prevUser,
-                username: newUsername
+                username: updatedUserData?.username || prevUser.username,
+                profilePicture: updatedUserData?.profilePicture || prevUser.profilePicture,
+                myList: updatedUserData?.myList || prevUser.myList
             }));
+
             return { success: true };
         } catch (e) {
             console.error('เกิดข้อผิดพลาดในการอัปเดตชื่อผู้ใช้:', e);
@@ -134,8 +142,33 @@ export const AuthContextProvider = ({ children }) => {
         }
     };
 
+    const updateProfilePicture = async (userId, newProfilePicture) => {
+        try {
+            const userRef = doc(db, 'users', userId);
+            await updateDoc(userRef, {
+                profilePicture: newProfilePicture
+            });
+
+            // ดึงข้อมูลผู้ใช้ใหม่หลังจากอัปเดตรูปโปรไฟล์
+            const updatedUserDoc = await getDoc(userRef);
+            const updatedUserData = updatedUserDoc.data();
+
+            setUser(prevUser => ({
+                ...prevUser,
+                username: updatedUserData?.username || prevUser.username,
+                profilePicture: updatedUserData?.profilePicture || prevUser.profilePicture,
+                myList: updatedUserData?.myList || prevUser.myList
+            }));
+
+            return { success: true };
+        } catch (e) {
+            console.error('เกิดข้อผิดพลาดในการอัปเดตรูปโปรไฟล์:', e);
+            return { success: false, error: e.message };
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, addToMyList, removeFromMyList, updateUsername }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, addToMyList, removeFromMyList, updateUsername, updateProfilePicture }}>
             {children}
         </AuthContext.Provider>
     );

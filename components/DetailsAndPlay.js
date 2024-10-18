@@ -172,10 +172,10 @@ const DetailsAndPlay = () => {
                     <Text style={styles.releaseDate}>Release Date: {movie.release_date}</Text>
 
                     <View style={styles.ratingContainer}>
-                        <BlurView intensity={80} tint="dark" style={styles.ratingBlur}>
+                        <View style={styles.ratingBlur}>
                             <Text style={styles.imdbText}>IMDb</Text>
                             <Text style={styles.rating}>{movie.vote_average.toFixed(1)}</Text>
-                        </BlurView>
+                        </View>
                     </View>
 
                     <Text style={styles.overview}>{movie.overview}</Text>
@@ -184,7 +184,7 @@ const DetailsAndPlay = () => {
                         <TouchableOpacity style={styles.myListButton} onPress={handleMyList}>
                             <Ionicons name={isInMyList ? "checkmark-circle" : "add-circle-outline"} size={24} color="#6666ff" />
                             <Text style={styles.myListButtonText}>
-                                {isInMyList ? "Remove from My List" : "Add to My List"}
+                                {isInMyList ? "Remove" : "My List"}
                             </Text>
                         </TouchableOpacity>
 
@@ -320,21 +320,23 @@ const styles = StyleSheet.create({
     },
     ratingBlur: {
         flexDirection: 'row',
+        backgroundColor: '#f3ce13',
         alignItems: 'center',
-        paddingHorizontal: 15,
-        paddingVertical: 8,
-        borderRadius: 20,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 10,
         overflow: 'hidden',
     },
     imdbText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#f3ce13',
-        marginRight: 10,
+        color: 'black',
+        marginRight: 8,
     },
     rating: {
         fontSize: 18,
-        color: '#fff',
+        fontWeight: 'bold',
+        color: 'black',
     },
     overview: {
         fontSize: 16,

@@ -194,9 +194,7 @@ export default function Home() {
                 contentContainerStyle={styles.contentContainer}
                 showsVerticalScrollIndicator={false}
             >
-                {/* <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Top 10 Trending Today</Text>
-                </View> */}
+
                 <ScrollView
                     horizontal
                     pagingEnabled
@@ -232,8 +230,10 @@ export default function Home() {
                                                 <Text style={styles.movieTitle}>{movie.title}</Text>
                                                 <Text style={styles.movieOverview} numberOfLines={2}>{movie.overview}</Text>
                                                 <View style={styles.ratingContainer}>
-                                                    <Text style={styles.imdbText}>IMDb</Text>
-                                                    <Text style={styles.ratingText}>{movie.vote_average.toFixed(1)}</Text>
+                                                    <View style={styles.imdbRatingBox}>
+                                                        <Text style={styles.imdbText}>IMDb</Text>
+                                                        <Text style={styles.ratingText}>{movie.vote_average.toFixed(1)}</Text>
+                                                    </View>
                                                 </View>
                                                 <TouchableOpacity
                                                     style={styles.myListButton}
@@ -298,8 +298,10 @@ export default function Home() {
                                     >
                                         <Text style={styles.recommendedMovieTitle}>{movie.title}</Text>
                                         <View style={styles.ratingContainer}>
-                                            <Text style={styles.imdbText}>IMDb</Text>
-                                            <Text style={styles.recommendedRatingText}>{movie.vote_average.toFixed(1)}</Text>
+                                            <View style={styles.imdbRatingBox}>
+                                                <Text style={styles.imdbText}>IMDb</Text>
+                                                <Text style={styles.ratingText}>{movie.vote_average.toFixed(1)}</Text>
+                                            </View>
                                         </View>
                                     </LinearGradient>
                                 </ImageBackground>
@@ -333,7 +335,7 @@ export default function Home() {
                                     >
                                         <Text style={styles.recommendedMovieTitle}>{movie.title}</Text>
                                         <View style={styles.releaseDateContainer}>
-                                            <Ionicons name="calendar-outline" size={16} color="#fff" />
+
                                             <Text style={styles.upcomingReleaseDate}>{movie.release_date}</Text>
                                         </View>
                                     </LinearGradient>
@@ -385,8 +387,10 @@ export default function Home() {
                                         >
                                             <Text style={styles.recommendedMovieTitle}>{movie.title}</Text>
                                             <View style={styles.ratingContainer}>
-                                                <Text style={styles.imdbText}>IMDb</Text>
-                                                <Text style={styles.recommendedRatingText}>{movie.vote_average.toFixed(1)}</Text>
+                                                <View style={styles.imdbRatingBox}>
+                                                    <Text style={styles.imdbText}>IMDb</Text>
+                                                    <Text style={styles.ratingText}>{movie.vote_average.toFixed(1)}</Text>
+                                                </View>
                                             </View>
                                         </LinearGradient>
                                     </ImageBackground>
@@ -546,7 +550,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
     },
     movieGradient: {
-        height: '50%',
+
         justifyContent: 'flex-end',
         padding: 15,
         borderBottomLeftRadius: 15,
@@ -562,13 +566,15 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         textShadowColor: 'rgba(0, 0, 0, 0.75)',
         textShadowOffset: { width: -1, height: 1 },
-        textShadowRadius: 5
+        textShadowRadius: 5,
+
+
     },
     movieTitle: {
         fontSize: 30,
         fontWeight: 'bold',
         color: '#fff',
-        marginBottom: 5,
+        marginBottom: 4,
         textShadowColor: 'rgba(0, 0, 0, 0.75)',
         textShadowOffset: { width: -1, height: 1 },
         textShadowRadius: 5
@@ -576,22 +582,32 @@ const styles = StyleSheet.create({
     movieOverview: {
         fontSize: 12,
         color: '#ddd',
-        marginBottom: 5,
+        marginBottom: 8,
     },
     ratingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 5,
     },
+    imdbRatingBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F5C518',
+        borderRadius: 4,
+        paddingVertical: 2,
+        paddingHorizontal: 4,
+        marginBottom: 5,
+    },
     imdbText: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: '#f3ce13',
+        color: '#000000',
         marginRight: 5,
     },
     ratingText: {
         fontSize: 14,
-        color: '#fff',
+        fontWeight: 'bold',
+        color: '#000000',
     },
     myListButton: {
         flexDirection: 'row',
@@ -676,7 +692,6 @@ const styles = StyleSheet.create({
     upcomingReleaseDate: {
         fontSize: 14,
         color: '#fff',
-        marginLeft: 5,
         fontWeight: 'bold',
     },
     genreScrollView: {

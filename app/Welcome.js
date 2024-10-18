@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, FlatList, Dimensions } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, FlatList, Dimensions, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -26,6 +26,7 @@ const carouselData = [
 export default function Welcome() {
     const router = useRouter();
     const [activeIndex, setActiveIndex] = useState(0);
+    const fadeAnim = useRef(new Animated.Value(1)).current;
 
     const renderItem = ({ item }) => (
         <View style={styles.slide}>
@@ -40,44 +41,55 @@ export default function Welcome() {
         setActiveIndex(Math.round(index));
     };
 
+    const navigateToSignIn = () => {
+        Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+        }).start(() => {
+            router.push('signIn');
+        });
+    };
+
     return (
-        <LinearGradient
-            colors={['#b3b3ff', '#9999ff']}
-            style={styles.background}
-        >
-            <SafeAreaView style={styles.safeArea}>
-                <View style={styles.container}>
-                    <FlatList
-                        data={carouselData}
-                        renderItem={renderItem}
-                        horizontal
-                        pagingEnabled
-                        showsHorizontalScrollIndicator={false}
-                        onScroll={handleScroll}
-                        keyExtractor={(item) => item.id}
-                    />
-                    <View style={styles.bottomContainer}>
-                        <View style={styles.dotContainer}>
-                            {carouselData.map((_, index) => (
-                                <View
-                                    key={index}
-                                    style={[
-                                        styles.dot,
-                                        index === activeIndex ? styles.activeDot : null
-                                    ]}
-                                />
-                            ))}
+        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+            <LinearGradient
+                colors={['#b3b3ff', '#9999ff']}
+                style={styles.background}
+            >
+                <SafeAreaView style={styles.safeArea}>
+                    <View style={styles.container}>
+                        <FlatList
+                            data={carouselData}
+                            renderItem={renderItem}
+                            horizontal
+                            pagingEnabled
+                            showsHorizontalScrollIndicator={false}
+                            onScroll={handleScroll}
+                            keyExtractor={(item) => item.id}
+                        />
+                        <View style={styles.bottomContainer}>
+                            <View style={styles.dotContainer}>
+                                {carouselData.map((_, index) => (
+                                    <View
+                                        key={index}
+                                        style={[
+                                            styles.dot,
+                                            index === activeIndex ? styles.activeDot : null
+                                        ]}
+                                    />
+                                ))}
+                            </View>
+
+                            <TouchableOpacity onPress={navigateToSignIn} style={styles.button}>
+                                <Text style={styles.buttonText}>Get Started</Text>
+                            </TouchableOpacity>
+
                         </View>
-                        <TouchableOpacity
-                            style={styles.button}
-                            onPress={() => router.push('signIn')}
-                        >
-                            <Text style={styles.buttonText}>Get Started</Text>
-                        </TouchableOpacity>
                     </View>
-                </View>
-            </SafeAreaView>
-        </LinearGradient>
+                </SafeAreaView>
+            </LinearGradient>
+        </Animated.View>
     );
 }
 

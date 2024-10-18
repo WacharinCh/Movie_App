@@ -13,7 +13,7 @@ export default function Mylist() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchVisible, setIsSearchVisible] = useState(false);
     const navigation = useNavigation();
-
+    const [isFocused, setIsFocused] = useState(false);
     useEffect(() => {
         if (user && user.myList) {
             setMyList(user.myList);
@@ -106,7 +106,7 @@ export default function Mylist() {
         movieItem: {
             width: '47%',
             marginHorizontal: '1.5%',
-
+            marginVertical: '1.5%',
             borderRadius: 15,
             overflow: 'hidden',
             elevation: 5,
@@ -199,8 +199,9 @@ export default function Mylist() {
         searchInputContainer: {
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: '#fff',
-            borderRadius: 15,
+            backgroundColor: '#f0f0ff',
+            borderRadius: 10,
+            borderWidth: isFocused ? 1 : 0,
             borderColor: '#6666ff',
             marginHorizontal: 20,
             marginBottom: 10,
@@ -262,6 +263,8 @@ export default function Mylist() {
                             placeholderTextColor="#999"
                             value={searchQuery}
                             onChangeText={handleSearch}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => setIsFocused(false)}
                         />
                     </View>
                 )}
