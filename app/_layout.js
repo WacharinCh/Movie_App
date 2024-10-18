@@ -3,7 +3,7 @@ import { Slot, useSegments, useRouter } from "expo-router";
 import { AuthContextProvider, useAuth } from '../context/authContext';
 
 const MainLayout = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const segments = useSegments();
     const router = useRouter();
 
@@ -12,11 +12,16 @@ const MainLayout = () => {
         const inAuthGroup = segments[0] === '(auth)';
 
         if (isAuthenticated && !inAuthGroup) {
-            router.replace('Home');
+            // แก้ไขเงื่อนไขตรงนี้
+            if (user && user.profilePicture) {
+                router.replace('Home');
+            } else if (user && !user.profilePicture) {
+                router.replace('addprofileimg');
+            }
         } else if (isAuthenticated === false) {
             router.replace('Welcome');
         }
-    }, [isAuthenticated]);
+    }, [isAuthenticated, user]);
 
     return <Slot />
 }

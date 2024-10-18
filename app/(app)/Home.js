@@ -16,7 +16,7 @@ export default function Home() {
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
     const { user, addToMyList, removeFromMyList } = useAuth();
-    const [selectedGenre, setSelectedGenre] = useState(28);  // Set initial value to 28 (Action)
+    const [selectedGenre, setSelectedGenre] = useState(28);
     const [genreMovies, setGenreMovies] = useState([]);
     const genreScrollViewRef = React.useRef(null);
     const [currentPage, setCurrentPage] = useState(0);
@@ -26,7 +26,7 @@ export default function Home() {
         fetchTrendingMovies();
         fetchRecommendedMovies();
         fetchUpcomingMovies();
-        fetchMoviesByGenre(selectedGenre);  // Call this function immediately when the component loads
+        fetchMoviesByGenre(selectedGenre);
     }, []);
 
     useEffect(() => {
@@ -122,7 +122,7 @@ export default function Home() {
         { id: 53, name: 'Thriller' },
         { id: 36, name: 'History' },
         { id: 9648, name: 'Mystery' },
-        { id: 16, name: 'Animation' }  // Add animation genre
+        { id: 16, name: 'Animation' }
     ];
 
     const handleMoviePress = (movie) => {
@@ -135,18 +135,15 @@ export default function Home() {
             if (isInMyList) {
                 const result = await removeFromMyList(user.userId, movie);
                 if (result.success) {
-                    // Update UI or show success message
                     console.log('Successfully removed movie from My List');
                 }
             } else {
                 const result = await addToMyList(user.userId, movie);
                 if (result.success) {
-                    // Update UI or show success message
                     console.log('Successfully added movie to My List');
                 }
             }
         } else {
-            // Notify user to log in
             console.log('Please log in to add movies to My List');
         }
     };
@@ -415,7 +412,7 @@ export default function Home() {
                                 </Text>
                             </View>
                         )}
-                        <Text style={styles.username}>{user?.username || 'ผู้ใช้'}</Text>
+                        <Text style={styles.username}>{user?.username || 'User'}</Text>
                     </View>
                     <TouchableOpacity onPress={handleSearchPress} style={styles.searchButton}>
                         <Ionicons name="search" size={24} color="#6666ff" />
@@ -432,7 +429,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
     },
     contentContainer: {
-        paddingTop: 100, // ปรับค่านี้ตามความสูงของ header
+        paddingTop: 100,
         paddingBottom: 100,
     },
     headerBlur: {

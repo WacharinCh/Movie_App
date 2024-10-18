@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Loading from './Loading';
-import { Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import config from '../config';
 import { BlurView } from 'expo-blur';
@@ -55,7 +54,7 @@ export default function SeeAll({ route }) {
 
             setHasMore(data.page < data.total_pages);
         } catch (error) {
-            console.error('เกิดข้อผิดพลาดในการดึงข้อมูลหนัง:', error);
+            console.error('Error fetching movies:', error);
         } finally {
             setLoading(false);
         }
@@ -76,7 +75,7 @@ export default function SeeAll({ route }) {
         { id: 53, name: 'Thriller' },
         { id: 36, name: 'History' },
         { id: 9648, name: 'Mystery' },
-        { id: 16, name: 'Animation' }  // Added Animation category
+        { id: 16, name: 'Animation' }
     ];
 
     const handleGenrePress = (genreId) => {
@@ -85,7 +84,7 @@ export default function SeeAll({ route }) {
         setMovies([]);
         const index = genres.findIndex(genre => genre.id === genreId);
         if (index !== -1 && genreScrollViewRef.current) {
-            const itemWidth = 110; // ความกว้างของแต่ละปุ่มหมวดหมู่
+            const itemWidth = 110;
             const offset = index * itemWidth;
             const centerOffset = containerWidth / 2 - itemWidth / 2;
             genreScrollViewRef.current.scrollTo({
@@ -197,7 +196,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f0f0ff',
-        paddingTop: 90, // Add padding to account for the header
+        paddingTop: 90,
     },
     headerBlur: {
         position: 'absolute',
@@ -291,7 +290,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     genreButton: {
-        backgroundColor: 'rgba(0, 0, 0, 0.3)', // เปลี่ยนสีพื้นหลังปุ่มหมวดหมู่
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
         paddingHorizontal: 15,
         paddingVertical: 10,
         borderRadius: 25,
@@ -299,10 +298,10 @@ const styles = StyleSheet.create({
         minWidth: 100,
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 0, // ลบเส้นขอบ
+        borderWidth: 0
     },
     selectedGenreButton: {
-        backgroundColor: '#6666ff', // เปลี่ยนสีพื้นหลังปุ่มที่เลือก
+        backgroundColor: '#6666ff',
     },
     genreButtonText: {
         color: '#fff',

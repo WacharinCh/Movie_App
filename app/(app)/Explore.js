@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, Image, StyleSheet, TouchableOpacity, ImageBackground, Keyboard, TouchableWithoutFeedback, Dimensions, ScrollView } from 'react-native';
-
+import { View, Text, Image, StyleSheet, TouchableOpacity, ImageBackground, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-
 import Loading from '../../components/Loading';
-
 import config from '../../config';
 import { BlurView } from 'expo-blur';
 import { useAuth } from '../../context/authContext';
@@ -16,39 +13,20 @@ export default function Explore() {
     const navigation = useNavigation();
     const { user } = useAuth();
 
-    const fetchUpcomingMovies = async () => {
-        try {
-            const API_KEY = config().TMDB_API_KEY;
-            const response = await fetch(`https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=en-US`);
-            if (!response.ok) {
-                throw new Error(`Incomplete server response: ${response.status} ${response.statusText}`);
-            }
-            const data = await response.json();
-            if (data.results && Array.isArray(data.results)) {
-                const sortedMovies = data.results.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
-                setUpcomingMovies(sortedMovies.slice(0, 10));
-            } else {
-                throw new Error('Invalid data structure');
-            }
-        } catch (error) {
-            console.error('Error fetching upcoming movies:', error.message);
-        }
-    };
-
     const fetchMovieDetails = async (movieId) => {
         try {
             const API_KEY = config().TMDB_API_KEY;
             const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&language=en-US`);
             if (!response.ok) {
-                throw new Error(`การตอบสนองจากเซิร์ฟเวอร์ไม่สมบูรณ์: ${response.status} ${response.statusText}`);
+                throw new Error(`Server response was not ok: ${response.status} ${response.statusText}`);
             }
             const data = await response.json();
             return {
                 runtime: data.runtime,
-                genres: data.genres // เพิ่มการดึงข้อมูลหมวดหมู่
+                genres: data.genres
             };
         } catch (error) {
-            console.error('เกิดข้อผิดพลาดในการดึงรายละเอียดภาวพยนตร์:', error.message);
+            console.error('Error fetching movie details:', error.message);
             return null;
         }
     };
@@ -69,7 +47,7 @@ export default function Explore() {
                     setUpcomingMovies(sortedMovies.slice(0, 10));
                 }
             } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการดึงข้อมูลภาพยนตร์:', error);
+                console.error('Error fetching movies:', error);
             } finally {
                 setIsLoading(false);
             }
@@ -280,7 +258,7 @@ export default function Explore() {
                                         <View style={styles.releaseDateContainer}>
                                             <Ionicons name="pricetag-outline" size={16} color="#666" />
                                             <Text style={styles.upcomingReleaseDate}>
-                                                {movie.genres && movie.genres.length > 0 ? movie.genres[0].name : 'ไม่ระบุหมวดหมู่'}
+                                                {movie.genres && movie.genres.length > 0 ? movie.genres[0].name : 'Uncategorized'}
                                             </Text>
                                         </View>
                                     </View>
@@ -301,7 +279,7 @@ export default function Explore() {
                         ) : (
                             <View style={styles.defaultProfilePicture}>
                                 <Text style={styles.defaultProfilePictureText}>
-                                    {user?.username?.charAt(0).toUpperCase() || 'ผ'}
+                                    {user?.username?.charAt(0).toUpperCase() || 'U'}
                                 </Text>
                             </View>
                         )}

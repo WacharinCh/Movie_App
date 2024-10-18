@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Linking } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Video } from 'expo-av';
@@ -45,7 +44,7 @@ const DetailsAndPlay = () => {
                 setAvailablePlatforms({});
             }
         } catch (error) {
-            console.error('เกิดข้อผิดพลาดในการดึงข้อมูลแพลตฟอร์ม:', error.message);
+            console.error('Error fetching platform data:', error.message);
             setAvailablePlatforms({});
         }
     };
@@ -64,21 +63,21 @@ const DetailsAndPlay = () => {
                 const result = await removeFromMyList(user.userId, movie);
                 if (result.success) {
                     setIsInMyList(false);
-                    console.log('ลบหนังออกจาก My List สำเร็จ');
+                    console.log('Successfully removed movie from My List');
                 } else {
-                    console.error('เกิดข้อผิดพลาดในการลบหนังออกจาก My List:', result.error);
+                    console.error('Error removing movie from My List:', result.error);
                 }
             } else {
                 const result = await addToMyList(user.userId, movie);
                 if (result.success) {
                     setIsInMyList(true);
-                    console.log('เพิ่มหนังลงใน My List สำเร็จ');
+                    console.log('Successfully added movie to My List');
                 } else {
-                    console.error('เกิดข้อผิดพลาดในการเพิ่มหนังลงใน My List:', result.error);
+                    console.error('Error adding movie to My List:', result.error);
                 }
             }
         } else {
-            console.log('กรุณาเข้าสู่ระบบเพื่อเพิ่มหนังลงใน My List');
+            console.log('Please log in to add movies to My List');
         }
     };
 

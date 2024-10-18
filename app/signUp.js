@@ -1,11 +1,10 @@
-import { View, Text, StatusBar, TextInput, TouchableOpacity, Alert, StyleSheet, Dimensions, KeyboardAvoidingView, ScrollView, Platform } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Dimensions, KeyboardAvoidingView, ScrollView, Platform } from 'react-native'
 import React, { useState } from 'react'
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useRouter } from 'expo-router';
 import Loading from '../components/Loading';
 import { useAuth } from '../context/authContext';
 import { Ionicons } from '@expo/vector-icons';
-
 const { width, height } = Dimensions.get('window');
 
 export default function SignUp() {
@@ -27,7 +26,6 @@ export default function SignUp() {
     }
 
     const handleRegister = async () => {
-
         if (!email || !password || !username || !confirmPassword) {
             Alert.alert('Sign Up', "Please fill all the fields!")
             return;
@@ -51,6 +49,7 @@ export default function SignUp() {
             return;
         }
 
+        router.replace('addprofileimg');
     }
 
     if (loading) {
@@ -72,12 +71,6 @@ export default function SignUp() {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
             >
-                {/* <TouchableOpacity
-                    style={styles.backButton}
-                    onPress={() => router.replace('signIn')}
-                >
-                    <Ionicons name="arrow-back" size={24} color="#000" />
-                </TouchableOpacity> */}
 
                 <View style={styles.content}>
                     <View style={styles.titleContainer}>

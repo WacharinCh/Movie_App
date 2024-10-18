@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, Image, StyleSheet, TouchableOpacity, ImageBackground, Keyboard, TouchableWithoutFeedback, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, ImageBackground, Keyboard, TouchableWithoutFeedback, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -112,7 +111,7 @@ export default function Search() {
             case '2010s': return [2010, 2019];
             case '2000s': return [2000, 2009];
             case '1990s': return [1990, 1999];
-            default: return [1900, 2029]; // ค่าเริ่มต้น
+            default: return [1900, 2029];
         }
     };
 
@@ -172,7 +171,7 @@ export default function Search() {
                         />
                     ) : searchQuery.length > 2 ? (
                         <View style={styles.noResultsContainer}>
-                            <Text style={styles.noResultsText}>ไม่พบผลลัพธ์</Text>
+                            <Text style={styles.noResultsText}>No results found</Text>
                         </View>
                     ) : null}
                     <BlurView intensity={80} tint="light" style={styles.headerBlur}>
@@ -185,7 +184,7 @@ export default function Search() {
                                     <Ionicons name="search" size={20} color="#6666ff" style={styles.searchIcon} />
                                     <TextInput
                                         style={styles.searchInput}
-                                        placeholder="คุณกำลังมองหาอะไร?"
+                                        placeholder="What are you looking for?"
                                         placeholderTextColor="gray"
                                         value={searchQuery}
                                         onChangeText={setSearchQuery}
@@ -355,7 +354,7 @@ const styles = StyleSheet.create({
     noResultsText: {
         color: '#6666ff',
         fontSize: 18,
-        text: 'ไม่พบผลลัพธ์',
+        text: 'No results found',
     },
     loadingContainer: {
         flex: 1,

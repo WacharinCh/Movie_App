@@ -1,12 +1,10 @@
 import { StyleSheet, View, Text, TouchableOpacity, Image, Alert, TextInput } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/authContext';
-import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
+import { MediaTypeOptions } from 'expo-image-picker';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db, storage } from '../../firebaesConfig';
+import { storage } from '../../firebaesConfig';
 import * as ImagePicker from 'expo-image-picker';
 import { Platform } from 'react-native';
 import Loading from '../../components/Loading';
@@ -14,12 +12,11 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 export default function Profile() {
     const { logout, user, updateUsername, updateProfilePicture } = useAuth();
-    const [uploading, setUploading] = useState(false); // สถานะการอัปโหลด
+    const [uploading, setUploading] = useState(false);
     const [image, setImage] = useState(user?.profilePicture || null);
     const [newUsername, setNewUsername] = useState(user?.username || '');
     const [isEditingUsername, setIsEditingUsername] = useState(false);
 
-    // ฟังก์ชันเลือกภาพจากคลัง
     const pickImage = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permissionResult.granted) {
@@ -39,7 +36,6 @@ export default function Profile() {
         if (!result.canceled && result.assets && result.assets.length > 0) {
             const imageUri = result.assets[0].uri;
 
-            // ตรวจสอบว่า URI ถูกต้องหรือไม่
             if (!imageUri) {
                 Alert.alert("Error", "Could not select image. Please try again.");
                 return;
@@ -51,14 +47,13 @@ export default function Profile() {
         }
     };
 
-    // ฟังก์ชันอัปโหลดภาพไปยัง Firebase Storage
     const uploadImage = async (uri) => {
         if (!user || !user.userId) {
             Alert.alert("Error", "User information is not available.");
             return;
         }
 
-        setUploading(true); // เริ่มอัปโหลด
+        setUploading(true);
         try {
             const platformUri = Platform.OS === 'android' && !uri.startsWith('file://') ? `file://${uri}` : uri;
 
@@ -81,7 +76,7 @@ export default function Profile() {
             const snapshot = await uploadBytes(storageRef, blob);
 
             const downloadURL = await getDownloadURL(snapshot.ref);
-            await updateProfilePicture(user.userId, downloadURL); // ใช้ฟังก์ชัน updateProfilePicture
+            await updateProfilePicture(user.userId, downloadURL);
 
             setImage(downloadURL);
             Alert.alert("Success", "Profile picture uploaded successfully!");
@@ -94,10 +89,10 @@ export default function Profile() {
         }
     };
 
-    // เมื่อมีการเปลี่ยนแปลงของ user ให้แสดงรูปภาพโปรไฟล์ที่อัปโหลด
+
     useEffect(() => {
         if (user && user.profilePicture) {
-            setImage(user.profilePicture); // อัปเดต image state เมื่อ user มี profilePicture
+            setImage(user.profilePicture);
         }
     }, [user, user?.profilePicture]);
 
@@ -111,7 +106,6 @@ export default function Profile() {
             if (result.success) {
                 Alert.alert("Success", "Username updated successfully");
                 setIsEditingUsername(false);
-                // อัปเดต image state หลังจากอัปเดตชื่อผู้ใช้สำเร็จ
                 setImage(user.profilePicture);
             } else {
                 Alert.alert("Error", "Failed to update username. Please try again.");

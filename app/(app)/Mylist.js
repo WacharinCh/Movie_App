@@ -10,25 +10,16 @@ export default function Mylist() {
     const { user } = useAuth();
     const [myList, setMyList] = useState([]);
     const [filteredList, setFilteredList] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [isSearchVisible, setIsSearchVisible] = useState(false);
     const navigation = useNavigation();
-    const [isFocused, setIsFocused] = useState(false);
     useEffect(() => {
         if (user && user.myList) {
             setMyList(user.myList);
             setFilteredList(user.myList);
         }
     }, [user]);
-
-    const handleSearch = (query) => {
-        setSearchQuery(query);
-        const filtered = myList.filter(movie =>
-            movie.title.toLowerCase().includes(query.toLowerCase())
-        );
-        setFilteredList(filtered);
+    const handleExplorePress = () => {
+        navigation.navigate('Explore');
     };
-
     const handleMoviePress = (movie) => {
         navigation.navigate('DetailsAndPlay', { movie });
     };
@@ -60,47 +51,20 @@ export default function Mylist() {
         </TouchableOpacity>
     );
 
-    const handleSearchPress = () => {
-        setIsSearchVisible(!isSearchVisible);
-        if (!isSearchVisible) {
-            setSearchQuery('');
-            setFilteredList(myList);
-        }
-    };
 
     const styles = StyleSheet.create({
         container: {
             flex: 1,
             backgroundColor: '#ffffff',
+
         },
         contentContainer: {
             flex: 1,
-        },
-        headerBlur: {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 1000,
-        },
-        header: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingHorizontal: 20,
-            paddingTop: 50,
-            paddingBottom: 10,
-        },
-        headerTitle: {
-            fontSize: 24,
-            fontWeight: 'bold',
-            color: '#6666ff',
-        },
-        searchButton: {
-            padding: 10,
+            marginTop: 100,
+            marginBottom: 90,
         },
         listContainer: {
-            paddingTop: 60, // ปรับค่านี้ให้มากกว่าความสูงของ header
+
             paddingHorizontal: 10,
         },
         movieItem: {
@@ -196,30 +160,52 @@ export default function Mylist() {
             fontSize: 16,
             fontWeight: 'bold',
         },
-        searchInputContainer: {
+        headerBlur: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+        },
+        header: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingHorizontal: 20,
+            paddingTop: 50,
+            paddingBottom: 10,
+        },
+        userInfo: {
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: '#f0f0ff',
-            borderRadius: 10,
-            borderWidth: isFocused ? 1 : 0,
-            borderColor: '#6666ff',
-            marginHorizontal: 20,
-            marginBottom: 10,
-            paddingHorizontal: 15,
-            paddingVertical: 12,
-            elevation: 3,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 3,
         },
-        searchIcon: {
+        profilePicture: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
             marginRight: 10,
         },
-        searchInput: {
-            flex: 1,
-            fontSize: 20,
-            color: '#333',
+        defaultProfilePicture: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: '#6666ff',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginRight: 10,
+        },
+        defaultProfilePictureText: {
+            color: '#fff',
+            fontSize: 18,
+            fontWeight: 'bold',
+        },
+        username: {
+            fontSize: 24,
+            fontWeight: 'bold',
+            color: '#6666ff',
+        },
+        searchButton: {
+            padding: 10,
         },
     });
 
@@ -233,41 +219,41 @@ export default function Mylist() {
                         keyExtractor={(item) => item.id.toString()}
                         numColumns={2}
                         contentContainerStyle={[
-                            styles.listContainer,
-                            isSearchVisible && { paddingTop: 130 } // ปรับ paddingTop เมื่อแสดงช่องค้นหา
+                            styles.listContainer
                         ]}
                     />
                 ) : (
-                    <View style={[styles.emptyContainer, { marginTop: isSearchVisible ? 160 : 110 }]}>
+                    <View style={[styles.emptyContainer, { marginTop: 100 }]}>
                         <Ionicons name="film-outline" size={80} color="#6666ff" />
-                        <Text style={styles.emptyText}>คุณยังไม่มีภาพยนตร์ในรายการของคุณ</Text>
-                        <TouchableOpacity style={styles.exploreButton}>
-                            <Text style={styles.exploreButtonText}>สำรวจภาพยนตร์</Text>
+                        <Text style={styles.emptyText}>You don't have any movies in your list yet</Text>
+                        <TouchableOpacity style={styles.exploreButton} onPress={handleExplorePress}>
+                            <Text style={styles.exploreButtonText}>Explore</Text>
                         </TouchableOpacity>
                     </View>
                 )}
             </SafeAreaView>
+
             <BlurView intensity={80} tint="light" style={styles.headerBlur}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>My List</Text>
-                    <TouchableOpacity onPress={handleSearchPress} style={styles.searchButton}>
-                        <Ionicons name={isSearchVisible ? "close" : "search"} size={24} color="#6666ff" />
+                    <View style={styles.userInfo}>
+                        {user?.profilePicture ? (
+                            <Image
+                                source={{ uri: user.profilePicture }}
+                                style={styles.profilePicture}
+                            />
+                        ) : (
+                            <View style={styles.defaultProfilePicture}>
+                                <Text style={styles.defaultProfilePictureText}>
+                                    {user?.username?.charAt(0).toUpperCase() || 'U'}
+                                </Text>
+                            </View>
+                        )}
+                        <Text style={styles.username}>My List</Text>
+                    </View>
+                    <TouchableOpacity style={styles.searchButton}>
+                        <Ionicons name="search" size={24} color="#6666ff" />
                     </TouchableOpacity>
                 </View>
-                {isSearchVisible && (
-                    <View style={styles.searchInputContainer}>
-                        <Ionicons name="search" size={20} color="#6666ff" style={styles.searchIcon} />
-                        <TextInput
-                            style={styles.searchInput}
-                            placeholder="ค้นหาในรายการของฉัน"
-                            placeholderTextColor="#999"
-                            value={searchQuery}
-                            onChangeText={handleSearch}
-                            onFocus={() => setIsFocused(true)}
-                            onBlur={() => setIsFocused(false)}
-                        />
-                    </View>
-                )}
             </BlurView>
         </View>
     );

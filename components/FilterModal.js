@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming, runOnJS, Easing } from 'react-native-reanimated';
@@ -63,10 +63,8 @@ const FilterModal = ({ isVisible, onClose, onApply, currentFilters, genres }) =>
             let updatedFilters;
 
             if (filterType === 'sort') {
-                // For sorting, only one option can be selected
                 updatedFilters = [value];
             } else {
-                // For other filters, multiple options can be selected
                 updatedFilters = currentFilters.includes(value)
                     ? currentFilters.filter(item => item !== value)
                     : [...currentFilters, value];
@@ -168,7 +166,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        height: SCREEN_HEIGHT * 0.8, // ปรับความสูงตามต้องการ
+        height: SCREEN_HEIGHT * 0.8,
     },
     modalContent: {
         padding: 20,

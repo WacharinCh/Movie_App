@@ -1,7 +1,6 @@
-import { View, Text, StatusBar, Image, TextInput, TouchableOpacity, Pressable, Alert, StyleSheet, Dimensions, KeyboardAvoidingView, ScrollView, Platform } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Dimensions, KeyboardAvoidingView, ScrollView, Platform } from 'react-native'
 import React, { useState } from 'react'
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import Entypo from '@expo/vector-icons/Entypo';
 import { useRouter } from 'expo-router';
 import Loading from '../components/Loading';
 import { useAuth } from '../context/authContext';
@@ -14,24 +13,20 @@ export default function SignIn() {
     const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [showPassword, setShowPassword] = useState(false)  // เพิ่มสถานะใหม่
+    const [showPassword, setShowPassword] = useState(false)
     const [focusedInput, setFocusedInput] = useState(null);
 
     const { login } = useAuth();
-    // ฟังก์ชันตรวจสอบอีเมล
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
 
     const handleLogin = async () => {
-        // ตรวจสอบว่าทุกฟิลด์ถูกกรอกครบถ้วนหรือไม่
         if (!email || !password) {
             Alert.alert('Sign In', "Please fill all the fields!")
             return;
         }
-
-        // ตรวจสอบรูปแบบอีเมล
         if (!validateEmail(email)) {
             Alert.alert('Sign In', "Invalid email format!")
             return;
@@ -47,7 +42,6 @@ export default function SignIn() {
             return;
         }
 
-        // ไม่ต้อง setLoading(false) ที่นี่ เพราะเราจะให้ Loading แสดงจนกว่าจะเปลี่ยนหน้าเสร็จ
     }
 
     if (loading) {
@@ -69,12 +63,6 @@ export default function SignIn() {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
             >
-                {/* <TouchableOpacity
-                    style={styles.backButton}
-                    onPress={() => router.replace('Welcome')}
-                >
-                    <Ionicons name="arrow-back" size={24} color="#000" />
-                </TouchableOpacity> */}
 
                 <View style={styles.content}>
                     <View style={styles.titleContainer}>
@@ -227,12 +215,12 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f0f0ff', // ใช้สีพื้นหลังเดียวกับหน้า Sign In
+        backgroundColor: '#f0f0ff',
     },
     scrollViewContent: {
         flexGrow: 1,
         justifyContent: 'center',
         paddingHorizontal: wp(6),
-        minHeight: height, // เพิ่มบรรทัดนี้
+        minHeight: height,
     },
 });

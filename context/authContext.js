@@ -9,38 +9,39 @@ export const AuthContextProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(undefined);
 
     useEffect(() => {
-        const unsub = onAuthStateChanged(auth, (user) => {
-
-
-            if (user) {
+        const unsub = onAuthStateChanged(auth, async (authUser) => {
+            if (authUser) {
+                const userData = await getUserData(authUser.uid);
                 setIsAuthenticated(true);
-                setUser(user);
-                updeteUserData(user.uid);
+                setUser({
+                    ...authUser,
+                    ...userData
+                });
             } else {
                 setIsAuthenticated(false);
                 setUser(null);
             }
-
             console.log('====================================');
             console.log(user);
             console.log('====================================');
+
         });
         return unsub;
     }, []);
 
-    const updeteUserData = async (userId) => {
+    const getUserData = async (userId) => {
         const docRef = doc(db, 'users', userId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-            let data = docSnap.data();
-            setUser(prevUser => ({
-                ...prevUser,
+            const data = docSnap.data();
+            return {
                 username: data?.username || '',
                 userId: data?.userId || userId,
-                profilePicture: data?.profilePicture || '', // ตรวจสอบว่าดึง URL ของโปรไฟล์รูปภาพมา
-                myList: data?.myList || [], // เพิ่มการโหลดข้อมูล myList
-            }));
+                profilePicture: data?.profilePicture || '',
+                myList: data?.myList || [],
+            };
         }
+        return {};
     };
 
     const addToMyList = async (userId, movie) => {
@@ -55,7 +56,7 @@ export const AuthContextProvider = ({ children }) => {
             }));
             return { success: true };
         } catch (e) {
-            console.error('เกิดข้อผิดพลาดในการเพิ่มหนังลงใน myList:', e);
+            console.error('Error adding movie to myList:', e);
             return { success: false, error: e.message };
         }
     };
@@ -72,7 +73,7 @@ export const AuthContextProvider = ({ children }) => {
             }));
             return { success: true };
         } catch (e) {
-            console.error('เกิดข้อผิดพลาดในการลบหนังออกจาก myList:', e);
+            console.error('Error removing movie from myList:', e);
             return { success: false, error: e.message };
         }
     };
@@ -80,7 +81,11 @@ export const AuthContextProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             const response = await signInWithEmailAndPassword(auth, email, password);
-            await updeteUserData(response.user.uid); // เรียกใช้ updeteUserData หลังจาก login สำเร็จ
+            const userData = await getUserData(response.user.uid);
+            setUser({
+                ...response.user,
+                ...userData
+            });
             return { success: true };
         } catch (e) {
             let msg = e.message;
@@ -124,7 +129,6 @@ export const AuthContextProvider = ({ children }) => {
                 username: newUsername
             });
 
-            // ดึงข้อมูลผู้ใช้ใหม่หลังจากอัปเดตชื่อผู้ใช้
             const updatedUserDoc = await getDoc(userRef);
             const updatedUserData = updatedUserDoc.data();
 
@@ -137,7 +141,7 @@ export const AuthContextProvider = ({ children }) => {
 
             return { success: true };
         } catch (e) {
-            console.error('เกิดข้อผิดพลาดในการอัปเดตชื่อผู้ใช้:', e);
+            console.error('Error updating username:', e);
             return { success: false, error: e.message };
         }
     };
@@ -149,7 +153,6 @@ export const AuthContextProvider = ({ children }) => {
                 profilePicture: newProfilePicture
             });
 
-            // ดึงข้อมูลผู้ใช้ใหม่หลังจากอัปเดตรูปโปรไฟล์
             const updatedUserDoc = await getDoc(userRef);
             const updatedUserData = updatedUserDoc.data();
 
@@ -162,7 +165,7 @@ export const AuthContextProvider = ({ children }) => {
 
             return { success: true };
         } catch (e) {
-            console.error('เกิดข้อผิดพลาดในการอัปเดตรูปโปรไฟล์:', e);
+            console.error('Error updating profile picture:', e);
             return { success: false, error: e.message };
         }
     };
